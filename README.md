@@ -1,106 +1,177 @@
-# Traditional T9 ![GitHub Downloads (latest release)](https://img.shields.io/github/downloads/sspanak/tt9/latest/total)
+# TT9 Whistle v64
 
-TT9 is a Nokia-style T9 keyboard for Android. It provides predictive text input in [50+ languages](app/languages/definitions), configurable hotkeys, clipboard, undo/redo, and extensive customization. It works on touchscreens, physical keypads, and TV remote controls. And best of all, it [doesn't spy](docs/privacy.md) on you!
+A personal fork of [Traditional T9](https://github.com/sspanak/tt9) (upstream TT9) **v64.0** with
+speech-to-text built into the keyboard. It installs beside stock TT9 as its own app: package
+`io.github.sspanak.tt9.qin`, label **TT9 Whistle**, versionName `64.0-qin`, versionCode 1646.
 
-This is a modernized version of the [original project](https://github.com/Clam-/TraditionalT9) by Clam-.
+Everything upstream v64.0 does — typing, the languages, keypad and hotkey behaviour, the clipboard,
+the settings tree, Help and Privacy — is inherited unchanged. The addition is a Voice input section
+in Settings, a voice key that records the microphone, and one dictation pipeline with three
+selectable engines.
 
-## 📷 Screenshots
-<table>
-    <tr>
-        <td> <img src="screenshots/1.png"> </td>
-        <td rowspan="2"> <img src="screenshots/3.png"> </td>
-        <td rowspan="2"> <img src="screenshots/4.png"> </td>
-        <td rowspan="2"> <img src="screenshots/7.png"> </td>
-        <td rowspan="2"> <img src="screenshots/5.png"> </td>
-    </tr>
-    <tr>
-        <td> <img src="screenshots/2.png"> </td>
-    </tr>
-</table>
+The source lives in this directory (`apps/tt9-whistle-v64`), a separate clone on branch
+`feat/qin-v64-dictation` based on the pinned upstream commit
+`e9f37e49ef9698cc78a61def709c191661e2fa25` (the v64.0 release commit). The older v34 fork in
+`apps/tt9-fork` is preserved and untouched, and is the only one of the two that has ever been
+deployed to a phone.
 
-## 📦 Install
+## What it adds to stock TT9
 
-[<img src="docs/badges/google.png" alt="Download from Play Store" height="59">](https://play.google.com/store/apps/details?id=io.github.sspanak.tt9)&nbsp;&nbsp;&nbsp;&nbsp;
-![](docs/badges/80-height.png)[<img src="docs/badges/f-droid.png" alt="Download from F-Droid" height="59">](https://f-droid.org/app/io.github.sspanak.tt9)&nbsp;&nbsp;&nbsp;&nbsp;
-![](docs/badges/80-height.png)[<img src="https://stc.utdstc.com/img/mediakit/download-gio-big.png" alt="Download from Uptodown" height="59">](https://io-github-sspanak-tt9.en.uptodown.com/android)&nbsp;&nbsp;&nbsp;&nbsp;
-![](docs/badges/80-height.png)[<img src="docs/badges/github.png" alt="Download from GitHub" height="59">](https://github.com/sspanak/tt9/releases/latest)
-![](docs/badges/80-height.png)
+Settings gains one entry, **Voice input**, whose summary shows the engine in use. The screen holds an
+engine chooser, a status line for the selected engine, and only that engine's controls. The other
+engines' controls stay in the preferences file, so switching engines never loses a saved value.
 
-_If your phone does not have Google Play and does not allow installing custom APKs, please consult the [Installation Guide](docs/installation.md)._
+- **On-device (Whistle)** — the default. Records 16 kHz mono PCM from the microphone, runs the
+  bundled Cactus Whistle speech model through the bundled `needle` runner, and inserts the
+  transcript. Works offline and sends nothing off the phone.
+- **Cloud (OpenCode)** — optional. Sends the recording as a base64 WAV inside a chat request to a
+  configured HTTPS endpoint together with a cleanup prompt, and inserts the returned text. It is off
+  unless selected, and nothing falls back to it automatically.
+- **System voice input** — TT9's original pathway, unchanged: whichever recognition service Android
+  has selected. It may go online and has no cleanup prompt.
 
-## ⚙️ System Requirements
-- Full version: Android 7.0 or higher
-- Lite version: Android 8.0 or higher
-- Storage space depends on the Android version. The lite version requires at least 6-8 Mb and the full version requires at least 265 Mb.
-- Extra storage space is necessary for language dictionaries in Predictive Mode.
-    - Languages with character predictions only (Korean): ~1 Mb per language
-    - Tiny languages (< 100k words; Kiswahili, Indonesian, Vietnamese): 5-6 Mb per language.
-    - Small languages (100k-400k words; e.g. English, Norwegian, Swedish, Finnish, French): 15-30 Mb per language.
-    - Medium languages (400k-800k words; e.g. Chinese, Danish, Greek, Italian, Portuguese): 40-75 Mb per language
-    - Large languages (800k-1.6M words; e.g. Arabic, Bulgarian, Hebrew, Japanese, Romanian, Spanish): 100-170 Mb per language
+Under the on-device engine the screen also exposes Depth and speed (Fast, 2 layers; Balanced,
+4 layers; 6 layers; Accuracy, full model), Processor threads (automatic, 1-4, default 4) and
+Language (English, German, French, Spanish, Italian, Dutch and Polish, the seven languages the
+pinned model supports). The cloud engine's endpoint, model, cleanup prompt and API key live on a
+separate advanced screen; the key is encrypted with a fork-owned Keystore alias, is never shown
+again, and can also be imported from `files/opencode-go.key`, which is deleted after import.
 
-_Storage usage for the dictionaries depends on the word root count and the average word length in each language. Some languages will require more space, even if they have fewer words than others._
+## The voice key
 
-### ⚠️ Compatibility
+Voice input is **function key 3**: hard key 3 while the function palette is open, and the voice
+palette key. Press it to start recording, press it again to stop and transcribe. Recording also ends
+at 60 seconds.
 
-#### 1. Check your Android version
-- Android 8.0+ → Install latest version (Play Store, F-Droid, or GitHub)
-- Android 7.x → Install latest full version from GitHub (manual)
-- Android 5–6 → Install full v60.0
-- Android 4.4 → Install full v44.0
-- Android ≤4.3 → Install legacy Traditional T9 Keypad IME from 2016
+The status bar reads "Recording · press voice to stop" while recording, then "Transcribing · on this
+phone" or "Transcribing · OpenCode". The finished transcript appears in the status bar in square
+brackets and is inserted at the cursor of the field that was focused when the recording started.
+Nothing is submitted.
 
-_On devices without Internet access, always use the full version from GitHub._
+A session inserts nothing when it is cancelled, when the keyboard is hidden, or when the focused
+editor object has changed; a result that arrives after its session ended is dropped. Audio whose
+peak is below roughly 2% of full scale counts as silence and is not transcribed.
 
-#### 2. If your device is unusual
-On heavily customized phones (e.g. TCL Flip 2, Kyocera phones, especially if running Android 10+), you may experience issues:
-  - empty gaps/misaligned items on the screen
-  - unexpected text/numbers appearing when you try to type
-  - incomplete integration with the native apps (e.g. "send" button not working, missing hotkey functions, etc.)
+## Languages and packaging
 
-#### 3. Want guaranteed compatibility?
-Use one of the tested phones:
-- Motorola g05 (Android 15)
-- CAT S22 Flip (Android 11)
-- Unihertz Atom L (Android 11)
-- Qin F21 Pro+ (Android 11)
-- Energizer H620SEU (Android 10)
-- Sonim XP3800 (Android 8.1)
+This is the **lite** flavour. The English dictionary and English word-pair data are bundled, so
+English predictive typing and the on-device engine work with no network. Shared language metadata
+for all dictionary languages ships in every flavour, so every other language is still offered and
+downloads once from upstream when selected, after which it works offline.
 
-## 🤔 How to Use Traditional T9?
-Before using Traditional T9 for the first time you need to configure it and load a dictionary. After that, you can start typing right away in one of the three modes: Predictive, ABC, or Numeric (123). And even if you have mastered the keypad back in the day, you will still find the Predictive mode now offers more powerful and smart new ways of typing with even fewer key presses.
+What makes the build compact is where the payloads sit: `app/src/main/assets` holds shared
+metadata, the Whistle model and the native engines; `app/src/full/assets` holds every language
+payload; `app/src/lite/assets` holds English only. The lite APK carries the 16.9 MB speech model,
+both engine ABIs and English, and no other language payload.
 
-So make sure to read the initial setup and the hotkey tips in the [user manual](docs/help/help.en.md). Also, don't miss the convenient [compatibility options](docs/help/help.en.md#troubleshooting) aimed to improve the experience in some applications.
+Generated assets come from the official v64.0 release APK, `tt9-v64.0-full.apk` (250,786,662
+bytes, SHA-256 `b13b93a129d945996b5c2b9dec7a9fd660cd26bf8855cfdb7a4780624d349bda`). That
+provenance is recorded in `docs/evidence/upstream-v64-assets.json` and checked on every asset run;
+the placement and its verification are written up in `docs/evidence/package-footprint.md`.
 
-_The user manual is also available in: [Brazilian Portuguese](docs/help/help.pt.md), [German](docs/help/help.de.md), [French](docs/help/help.fr.md), [Italian](docs/help/help.it.md), [Russian](docs/help/help.ru.md), [Spanish](docs/help/help.es.md), [Turkish](docs/help/help.tr.md), [Ukrainian](docs/help/help.uk.md)._
+## Build
 
-## ⌨ Contributing
-As with many other open-source projects, this one is also maintained by its author in his free time. Any help in making Traditional T9 better will be highly appreciated. Here is how:
-- Add [a new language](CONTRIBUTING.md#adding-a-new-language), [new UI translations](CONTRIBUTING.md#translating-the-ui) or simply fix a spelling mistake. The process is very simple and even with minimum technical knowledge, your skills as a native speaker will be of great use. Or, if you are not tech-savvy, just [open a new issue](https://github.com/sspanak/tt9/issues) and put the correct translations or words there. Correcting misspelled words or adding new ones is the best you can do to help. Processing millions of words in multiple languages is a very difficult task for a single person.
-- Share your list of added words. Use the Export function in Settings → Languages → Added Words and upload the generated CSV file in a [new issue](https://github.com/sspanak/tt9/issues). You are also welcome to [open a PR](https://github.com/sspanak/tt9/pulls) if you have good technical knowledge and can split them by language.
-- [Report bugs](https://github.com/sspanak/tt9/issues) or other unusual behavior on different phones. It is only possible to verify correct operation and compatibility on a handful of phones, but Android behavior and appearance vary a lot across the millions of devices available out there.
-- Experienced developers, who are willing to get your hands dirty with the code, see the [Contribution Guide](CONTRIBUTING.md).
+Needs a JDK 17, the Android SDK with build-tools (zipalign, apksigner, aapt2), an unpacked pinned
+Gradle 9.5.0, and a personal signing keystore (`~/.android/debug.keystore` by default). Nothing is
+downloaded and nothing is installed.
 
-Your PRs are welcome!
+```sh
+cd apps/tt9-whistle-v64
+scripts/build-qin.sh                    # -> dist/TT9Whistle64.apk, aligned and signed
+scripts/build-qin.sh --verify-only      # checks provenance and asset placement, writes nothing
+```
 
-## 👍 Support
-The best way to support the project is to give it five stars on Google Play. While it may sound trivial, good reviews really motivate me to keep working on it. They also encourage the Play Store to promote TT9 to more people and ultimately help spread the word.
+`scripts/build-qin.sh` is the supported way to produce the artifact that `make-module.sh`
+packages. It runs `:app:assembleLiteRelease` with the generated-language tasks skipped
+(`validateLanguages`, `buildDefinition`, `buildDictionaryDownloads`, `copyDownloadsToAssets`,
+`generateNgramsMeta`, `copyNgramsToAssets`, `copyNgramsToDownloads`, `generateDocs`), because
+the pinned v64.0 assets are already committed and those tasks would regenerate the asset trees and
+`downloads/`. It also skips `updateStatusIcons` and `updateManifest`, which rewrite tracked files
+from the current git state, and it fails if `AndroidManifest.xml` or `StatusIcon.java` changed
+during the build.
 
-You can also give the project a star on GitHub. Higher-ranked projects can access development tools for free and apply for funding more easily.
+The Gradle wrapper pins 9.5.0 (`distributionSha256Sum 553c78f5...d6b746`); when the wrapper
+distribution is not unpacked, the script uses an unpacked 9.5.0 already in the workspace instead of
+downloading it. Only the skipped generator tasks need a newer JDK; JDK 17 compiles this project.
 
-And if you truly enjoy using TT9, buy me a beer on [Ko-Fi](https://ko-fi.com/sspanak) or buy Premium on Google Play.
+Status on 2026-10-16: `:app:assembleLiteRelease` fails in `:app:packageLiteRelease` with
+"Zip file ... already contains entry 'assets/dexopt/baseline.prof', cannot overwrite", so
+`dist/TT9Whistle64.apk` does not exist yet. `:app:assembleLiteDebug` builds cleanly and produces
+a 27.5 MB APK. See `CURRENT_STATE.md` for the current detail.
 
-## 💪 Philosophy
-- No spying, tracking, telemetry, reports, or data collection of any sort.
-- No ads or unnecessary bells and whistles. It only does its job, typing.
-- No unnecessary network connections. The Full version operates entirely offline, and the Lite version connects only to download dictionaries from GitHub. Voice Input may require Internet access, depending on the available voice services.
-- Open-source, permitting you to verify all the above yourself.
-- Created with help from the entire community.
-- Things it will (probably) never have: QWERTY layout, swipe-typing, GIFs, and stickers.
-- Not intended as a clone of TouchPal, Sony Ericsson, KaiOS, Samsung, etc. While it captures the feel of the classics, TT9 offers its own experience and won’t replicate any device or app exactly.
+## Install
 
-_Note: the Google Play version is almost identical to the lite version, except that it includes extra "premium" features that are closed-source. Nevertheless, none of the extra components compromises the principles outlined above._
+The Qin F22 does not accept a plain `adb install`, so the app goes on as a single-app Magisk
+module. `make-module.sh` stages the module; it never flashes, installs or reboots anything.
 
-## 🕮 License
-- The source code, the logo image, and the icons are licensed under the conditions described in [LICENSE.txt](LICENSE.txt).
-- The dictionaries are licensed under the licenses provided in the [respective readme files](docs/dictionaries), where applicable. Detailed information about the dictionaries is also available there.
+```sh
+./make-module.sh        # -> dist/qin_tt9_whistle.zip
+```
+
+Before staging, it verifies the APK's package, versionCode, versionName and armeabi-v7a code, checks
+that the engine inside the APK matches `app/src/main/jniLibs/armeabi-v7a/libneedle.so`, and
+requires exactly one bundled dictionary payload and one ngram payload (the lite layout;
+`--any-payloads` relaxes only that last check). The module contains:
+
+- `system/app/TT9Whistle/TT9Whistle.apk`
+- `system/app/TT9Whistle/lib/arm/libneedle.so` — a preinstalled app's own native library directory
+  is where the app executes the engine from, so it has to be staged beside the APK
+- `module.prop` with id `qin_tt9_whistle`, version `64.0-qin` (1646)
+
+Then, by hand on the phone: Magisk -> Modules -> Install from storage -> `qin_tt9_whistle.zip`,
+reboot, unlock, and select **TT9 Whistle** as the keyboard. The first launch can fail for a while as
+ART re-verifies the dex; retry it. The first dictation asks for the microphone permission.
+
+Stock TT9 is not touched by this module and stays selectable on the phone.
+
+## Rollback
+
+Select stock Traditional T9 as the keyboard first, then disable the `qin_tt9_whistle` module in
+Magisk and reboot; disabling is enough to make the app disappear. Removing the module directory
+uninstalls it. Deleting the app's data is a separate, deliberate step.
+
+The v34 fork used the same module id and the same install path, so this module replaces that entry
+if it is still present rather than sitting beside it.
+
+## Tests and evidence
+
+- `tests/opencode/` — a JVM harness for the cloud adapter: settings, the wire contract, and a real
+  loopback HTTPS round trip. 121 checks, plus `mutation-control.sh`, which injects five known
+  defects and requires the harness to catch them. Run it with `bash tests/opencode/run-tests.sh`.
+- `tests/whistle/probe_fifo.py` — the desktop probe for the warm runner protocol: model residency
+  before audio, FIFO delivery, output only after EOF, and peak RSS. Its measurements and the
+  runner's real limits are written up in `tests/whistle/README.md`.
+- `tests/java/.../LocalWhistleTranscriberTest.java` — a standalone check for the transcript parser.
+- `docs/evidence/` — the pinned-asset provenance, the packaging footprint, the emulator startup
+  crash log that led to the current lifecycle fix, and emulator screenshots at the Qin's display
+  size.
+- Benchmark runs and probe JSON live at `work/whistle-test/evidence-2026-10-16/` in the workspace,
+  outside this repository.
+
+The debug source set (`app/src/debug/`) adds a two-field test activity and two broadcast receivers
+so dictation can be driven without the physical keypad. None of it exists in a release build.
+
+## Known limits
+
+- Real human speech has not been verified end to end. Every benchmark fixture is synthetic
+  text-to-speech, and microphone-to-inserted-text on the phone is still the outstanding acceptance
+  item.
+- The keyboard uses the per-call transcriber, which loads the model for each dictation. The warm
+  prepared-runner path exists in the source and is measured on the desktop only; it is not wired
+  into the keyboard, and its phone timing has not been measured.
+- Depth 6 is selectable but unmeasured.
+- The Android 11 emulator resets the selected IME to Gboard on restart, so the keyboard has to be
+  re-selected after each emulator boot.
+
+## Licences
+
+- Traditional T9 source, logo and icons: Apache-2.0 — see `LICENSE.txt` and `CONTRIBUTING.md`.
+  Upstream's own README is unchanged in git at the pinned commit (`git show e9f37e49:README.md`).
+- The `needle` runtime (`cactus-compute/needle`): Apache-2.0 — see
+  `work/whistle-test/needle/LICENSE` in the workspace.
+- The Cactus engine and the Whistle speech model: Cactus Compute's own terms, retained at
+  `work/whistle-test/cactus/LICENSE` — free for personal, educational, research and
+  non-commercial use, with a funding and revenue threshold for organisations. The model is the
+  `Cactus-Compute/whistle` checkpoint.
+- Consequence: this is a personal build. Do not redistribute the APK or the module zip.
+- Bundled dictionaries keep their upstream licences — see `docs/dictionaries/`.

@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import io.github.sspanak.tt9.R;
+import io.github.sspanak.tt9.dictation.DictationEngine;
 import io.github.sspanak.tt9.ime.modes.helpers.AutoTextCase;
 import io.github.sspanak.tt9.ime.modes.helpers.Sequences;
 import io.github.sspanak.tt9.ime.voice.VoiceInputError;
@@ -27,6 +28,9 @@ abstract class VoiceHandler extends SuggestionHandler {
 	protected void onInit() {
 		super.onInit();
 
+		// Load the on-device engine in the background so the first dictation does not wait for it.
+		DictationEngine.warmUpAsync(this);
+
 		voiceInputOps = new VoiceInputOps(
 			this,
 			this::onVoiceInputStarted,
@@ -37,14 +41,23 @@ abstract class VoiceHandler extends SuggestionHandler {
 	}
 
 	@Override
+	public void onFinishInputView(boolean finishingInput) {
+		super.onFinishInputView(finishingInput);
+		
+		// The keyboard is gone, so hand the ~45 MB native runner back until it is needed again.
+		DictationEngine.releaseResources();
+	}
+	
+	
+	@Override
 	protected Ternary onBack() {
-		stopVoiceInput();
+		if (voiceInputOps.usesCustomDictation()) cancelVoiceInput(); else stopVoiceInput();
 		return Ternary.FALSE; // we don't want to abort other operations, we just silently stop voice input
 	}
 
 	@Override
 	protected boolean onNumber(int key, boolean hold, int repeat) {
-		stopVoiceInput();
+		if (voiceInputOps.usesCustomDictation()) cancelVoiceInput(); else stopVoiceInput();
 		return super.onNumber(key, hold, repeat);
 	}
 
@@ -90,7 +103,14 @@ abstract class VoiceHandler extends SuggestionHandler {
 	}
 
 
+	protected void cancelVoiceInput() {
+		voiceInputOps.cancel();
+		resetStatus();
+		if (mainView != null && !mainView.isCommandPaletteShown()) mainView.render();
+	}
+
 	public void stopVoiceInput() {
+		if (voiceInputOps.usesCustomDictation() && voiceInputOps.isTranscribing()) { cancelVoiceInput(); return; }
 		if (voiceInputOps.isListening()) {
 			statusBar.setText(R.string.voice_input_stopping);
 			voiceInputOps.stop();

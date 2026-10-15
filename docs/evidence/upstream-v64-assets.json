@@ -1,0 +1,7 @@
+{
+  "source": "https://github.com/sspanak/tt9/releases/download/v64.0/tt9-v64.0-full.apk",
+  "sha256": "b13b93a129d945996b5c2b9dec7a9fd660cd26bf8855cfdb7a4780624d349bda",
+  "size": 250786662,
+  "release_tag": "v64.0",
+  "purpose": "Reuse pinned upstream generated dictionary/help assets; app code compiled from v64 source."
+}

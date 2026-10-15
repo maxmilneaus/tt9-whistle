@@ -27,6 +27,12 @@ public class VoiceInputError {
 	}
 
 
+	public VoiceInputError(Context context, int errorCode, String detail) {
+		code = errorCode;
+		debugMessage = detail;
+		message = detail == null || detail.trim().isEmpty() ? codeToString(context, errorCode) : detail;
+	}
+
 	public boolean isNoPermission() {
 		return code == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS;
 	}

@@ -23,6 +23,8 @@ import io.github.sspanak.tt9.preferences.screens.BaseScreenFragment;
 import io.github.sspanak.tt9.preferences.screens.UsageStatsScreen;
 import io.github.sspanak.tt9.preferences.screens.appearance.AppearanceScreen;
 import io.github.sspanak.tt9.preferences.screens.debug.DebugScreen;
+import io.github.sspanak.tt9.preferences.screens.dictation.DictationAdvancedScreen;
+import io.github.sspanak.tt9.preferences.screens.dictation.DictationScreen;
 import io.github.sspanak.tt9.preferences.screens.deleteWords.DeleteWordsScreen;
 import io.github.sspanak.tt9.preferences.screens.fnKeyOrder.FnKeyOrderScreen;
 import io.github.sspanak.tt9.preferences.screens.hotkeys.HotkeysScreen;
@@ -154,6 +156,8 @@ public class PreferencesActivity extends PremiumPreferencesActivity implements P
 			case AppearanceUnfoldedScreen.NAME -> new AppearanceUnfoldedScreen(this);
 			case DebugScreen.NAME -> new DebugScreen(this);
 			case DeleteWordsScreen.NAME -> new DeleteWordsScreen(this);
+			case DictationAdvancedScreen.NAME -> new DictationAdvancedScreen(this);
+			case DictationScreen.NAME -> new DictationScreen(this);
 			case FnKeyOrderScreen.NAME -> new FnKeyOrderScreen(this);
 			case HotkeysScreen.NAME -> new HotkeysScreen(this);
 			case KeyCharsScreen.NAME -> new KeyCharsScreen(this);

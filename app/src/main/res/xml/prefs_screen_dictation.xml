@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	app:orderingFromXml="true">
+
+	<PreferenceCategory app:key="category_dictation_engine" app:title="@string/dictation_engine_title">
+
+		<io.github.sspanak.tt9.preferences.screens.dictation.DropDownDictationEngine />
+
+		<Preference
+			app:key="dictation_status"
+			app:title="@string/dictation_status_title" />
+	</PreferenceCategory>
+
+	<PreferenceCategory app:key="category_dictation_on_device" app:title="@string/dictation_category_on_device">
+
+		<io.github.sspanak.tt9.preferences.screens.dictation.DropDownWhistleDepth app:title="@string/dictation_depth_title" />
+
+		<io.github.sspanak.tt9.preferences.screens.dictation.DropDownWhistleThreads app:title="@string/dictation_threads_title" />
+
+		<io.github.sspanak.tt9.preferences.screens.dictation.DropDownWhistleLanguage app:title="@string/dictation_language_title" />
+	
+		<io.github.sspanak.tt9.preferences.screens.dictation.DictationKeywordsPreference
+			app:key="dictation_whistle_keywords"
+			app:title="@string/dictation_keywords_title"
+			app:summary="@string/dictation_keywords_summary" />
+
+		<Preference
+			app:key="dictation_on_device_note"
+			app:title="@string/dictation_on_device_note_title"
+			app:summary="@string/dictation_on_device_note" />
+
+		<Preference
+			app:key="dictation_language_note"
+			app:title="@string/dictation_language_note_title"
+			app:summary="@string/dictation_language_note" />
+	</PreferenceCategory>
+
+	<PreferenceCategory app:key="category_dictation_cloud" app:title="@string/dictation_category_cloud">
+
+		<Preference
+			app:key="screen_dictation_cloud"
+			app:title="@string/dictation_cloud_settings_title"
+			app:summary="@string/dictation_cloud_settings_summary" />
+
+		<Preference
+			app:key="dictation_cloud_note"
+			app:title="@string/dictation_cloud_note_title"
+			app:summary="@string/dictation_cloud_note" />
+	</PreferenceCategory>
+
+	<PreferenceCategory app:key="category_dictation_system" app:title="@string/dictation_category_system">
+
+		<Preference
+			app:key="dictation_system_note"
+			app:title="@string/dictation_system_note_title"
+			app:summary="@string/dictation_system_note" />
+	</PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	Voice input settings. English only for now, so these are not marked for translation.
+-->
+<resources>
+	<string name="dictation_screen_title" translatable="false">Voice input</string>
+
+	<string name="dictation_engine_title" translatable="false">Engine</string>
+	<string name="dictation_engine_whistle" translatable="false">On-device (Whistle)</string>
+	<string name="dictation_engine_opencode" translatable="false">Cloud (OpenCode)</string>
+	<string name="dictation_engine_opencode_no_network" translatable="false">Cloud (OpenCode) - unavailable in this build</string>
+	<string name="dictation_engine_system" translatable="false">System voice input</string>
+
+	<string name="dictation_status_title" translatable="false">Status</string>
+	<string name="dictation_status_on_device" translatable="false">Ready offline. Nothing is sent off the phone.</string>
+	<string name="dictation_status_model_missing" translatable="false">The speech model is missing from this build.</string>
+	<string name="dictation_status_no_engine" translatable="false">No on-device engine for this CPU (%1$s).</string>
+	<string name="dictation_status_cloud_no_key" translatable="false">No key saved. Add it in Cloud settings.</string>
+	<string name="dictation_status_cloud_key_saved" translatable="false">A key is saved.</string>
+	<string name="dictation_status_cloud_key_saved_fingerprint" translatable="false">Key saved (%1$s)</string>
+	<string name="dictation_status_cloud_no_network" translatable="false">No internet permission in this build.</string>
+	<string name="dictation_status_system" translatable="false">Uses the voice service Android has selected. Unchanged from upstream TT9.</string>
+
+	<string name="dictation_category_on_device" translatable="false">On-device engine</string>
+	<string name="dictation_depth_title" translatable="false">Depth and speed</string>
+	<string name="dictation_depth_fast" translatable="false">Fast - lower accuracy</string>
+	<string name="dictation_depth_balanced" translatable="false">Balanced - 4 layers</string>
+	<string name="dictation_depth_six" translatable="false">6 layers (advanced, unmeasured)</string>
+	<string name="dictation_depth_accuracy" translatable="false">Accuracy - full model</string>
+	<string name="dictation_threads_title" translatable="false">Processor threads</string>
+	<string name="dictation_threads_auto" translatable="false">Automatic (engine decides)</string>
+	<string name="dictation_threads_default" translatable="false">%1$d threads (default)</string>
+	<string name="dictation_threads_one" translatable="false">1 thread</string>
+	<string name="dictation_threads_many" translatable="false">%1$d threads</string>
+	<string name="dictation_language_title" translatable="false">Language</string>
+	<string name="dictation_keywords_title" translatable="false">Words to expect</string>
+	<string name="dictation_keywords_summary" translatable="false">Names, jargon and product words, separated by commas. The engine is told to favour them.</string>
+	<string name="dictation_language_en" translatable="false">English</string>
+	<string name="dictation_language_de" translatable="false">German</string>
+	<string name="dictation_language_fr" translatable="false">French</string>
+	<string name="dictation_language_es" translatable="false">Spanish</string>
+	<string name="dictation_language_it" translatable="false">Italian</string>
+	<string name="dictation_language_nl" translatable="false">Dutch</string>
+	<string name="dictation_language_pl" translatable="false">Polish</string>
+	<string name="dictation_on_device_note_title" translatable="false">Benchmark</string>
+	<string name="dictation_on_device_note" translatable="false">117 runs on this phone: about 1.2 s (Fast) to 1.8 s (full). Clips were synthetic, so human speech is still unverified.</string>
+	<string name="dictation_language_note_title" translatable="false">Model languages</string>
+	<string name="dictation_language_note" translatable="false">Supported: English, German, French, Spanish, Italian, Dutch and Polish.</string>
+
+	<string name="dictation_category_cloud" translatable="false">Cloud engine</string>
+	<string name="dictation_cloud_settings_title" translatable="false">Cloud settings</string>
+	<string name="dictation_cloud_settings_summary" translatable="false">Endpoint, model, key and cleanup prompt.</string>
+	<string name="dictation_cloud_note_title" translatable="false">Privacy</string>
+	<string name="dictation_cloud_note" translatable="false">Recordings go to your endpoint as audio while this engine is selected. The on-device engine never connects.</string>
+
+	<string name="dictation_category_system" translatable="false">System engine</string>
+	<string name="dictation_system_note_title" translatable="false">About this engine</string>
+	<string name="dictation_system_note" translatable="false">The original TT9 pathway. It uses whatever recognition service Android has, so it may go online, and it has no cleanup prompt.</string>
+
+	<string name="dictation_cloud_title" translatable="false">Cloud settings</string>
+	<string name="dictation_cloud_category_connection" translatable="false">Connection</string>
+	<string name="dictation_cloud_endpoint_title" translatable="false">Endpoint</string>
+	<string name="dictation_cloud_endpoint_summary" translatable="false">HTTPS address of the transcription API.</string>
+	<string name="dictation_cloud_model_title" translatable="false">Model</string>
+	<string name="dictation_cloud_model_summary" translatable="false">Model name sent with every request.</string>
+	<string name="dictation_cloud_category_cleanup" translatable="false">Cleanup instructions</string>
+	<string name="dictation_cloud_prompt_title" translatable="false">Cleanup prompt</string>
+	<string name="dictation_cloud_prompt_summary" translatable="false">Sent with the audio to tidy the transcript. Leave it empty to send none.</string>
+	<string name="dictation_cloud_category_key" translatable="false">API key</string>
+	<string name="dictation_cloud_key_status_title" translatable="false">Saved key</string>
+	<string name="dictation_cloud_key_title" translatable="false">Key</string>
+	<string name="dictation_cloud_key_summary" translatable="false">Typed here only, and never shown again. Leave it empty to keep the saved key.</string>
+	<string name="dictation_cloud_key_missing" translatable="false">No key saved yet.</string>
+	<string name="dictation_cloud_key_import_title" translatable="false">Import key from file</string>
+	<string name="dictation_cloud_key_import_summary" translatable="false">Reads the key staged at files/opencode-go.key, saves it and deletes the file.</string>
+	<string name="dictation_cloud_key_imported" translatable="false">Key imported.</string>
+	<string name="dictation_cloud_key_imported_not_deleted" translatable="false">Key imported, but files/opencode-go.key could not be deleted.</string>
+	<string name="dictation_cloud_key_import_missing" translatable="false">No file at files/opencode-go.key.</string>
+	<string name="dictation_cloud_key_import_too_large" translatable="false">The key file is larger than 4 KB.</string>
+	<string name="dictation_cloud_key_import_empty" translatable="false">The key file is empty.</string>
+	<string name="dictation_cloud_key_import_unreadable" translatable="false">The key file could not be read.</string>
+	<string name="dictation_cloud_key_import_failed" translatable="false">Could not import the key: %1$s</string>
+	<string name="dictation_cloud_key_clear_title" translatable="false">Remove saved key</string>
+	<string name="dictation_cloud_key_clear_summary" translatable="false">Deletes the stored key. Cloud dictation stops until a new one is saved.</string>
+	<string name="dictation_cloud_save_title" translatable="false">Save cloud settings</string>
+	<string name="dictation_cloud_save_summary" translatable="false">Applies the endpoint, model, prompt and key above.</string>
+	<string name="dictation_cloud_status_title" translatable="false">Last action</string>
+	<string name="dictation_cloud_saved" translatable="false">Saved.</string>
+	<string name="dictation_cloud_key_removed" translatable="false">Key removed.</string>
+	<string name="dictation_cloud_incomplete" translatable="false">Fill in the highlighted fields.</string>
+	<string name="dictation_cloud_save_failed" translatable="false">Could not save: %1$s</string>
+	<string name="dictation_cloud_load_failed" translatable="false">Could not read the saved settings: %1$s</string>
+	<string name="dictation_cloud_error_endpoint_missing" translatable="false">Endpoint is required</string>
+	<string name="dictation_cloud_error_endpoint_insecure" translatable="false">Must start with https://</string>
+	<string name="dictation_cloud_error_model_missing" translatable="false">Model is required</string>
+	<string name="dictation_cloud_error_unknown" translatable="false">unknown error</string>
+</resources>

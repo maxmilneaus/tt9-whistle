@@ -23,4 +23,16 @@
 	<color name="suggestion_selected_background">#347bac</color>
 	<color name="suggestion_selected_text">#fff</color>
 	<color name="suggestion_separator">#888888</color>
+
+	<!--*******************************************
+		Settings screens (not the keyboard)
+	*******************************************-->
+
+	<color name="prefs_page_background">#101215</color>
+	<color name="prefs_title_background">#1e2227</color>
+	<color name="prefs_title_text_color">#edeef0</color>
+	<color name="prefs_text_color">#e4e6e9</color> <!-- row titles -->
+	<color name="prefs_summary_text_color">#a2a6ac</color> <!-- summaries, section titles -->
+	<color name="prefs_accent">#74c1b6</color> <!-- the one accent -->
+	<color name="prefs_highlight">#3374c1b6</color> <!-- the accent, at a strength that reads on the page -->
 </resources>

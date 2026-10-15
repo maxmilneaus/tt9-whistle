@@ -158,12 +158,12 @@ android {
 	compileSdk = 37
 
 	defaultConfig {
-		applicationId = PACKAGE_NAME
+		applicationId = "${PACKAGE_NAME}.qin"
 		buildFeatures.buildConfig = true
 		minSdk = 24
 		targetSdk = 37
-		versionCode = getVerCode()
-		versionName = getVerName()
+		versionCode = 1646
+		versionName = "64.0-qin"
 
 		buildConfigField 'String', 'DICTIONARY_EXTENSION', "\"${DICTIONARY_OUTPUT_EXTENSION}\""
 		buildConfigField 'String', 'DOCS_DIR', "\"${DOCS_DIR_NAME}\""
@@ -174,12 +174,16 @@ android {
 		vectorDrawables.generatedDensities = []
 	}
 
+	packaging {
+		jniLibs { useLegacyPackaging = true }
+	}
+
 	buildTypes {
 		debug {
-			buildConfigField 'String', 'VERSION_FULL', "\"${getVersionString('debug')}\""
+			buildConfigField 'String', 'VERSION_FULL', "\"64.0-qin (debug)\""
 		}
 		release {
-			buildConfigField 'String', 'VERSION_FULL', "\"${getVersionString('release')}\""
+			buildConfigField 'String', 'VERSION_FULL', "\"64.0-qin\""
 
 			debuggable = false
 			jniDebuggable = false

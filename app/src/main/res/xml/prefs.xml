@@ -28,6 +28,11 @@
 		app:title="@string/pref_category_keypad" />
 
 	<Preference
+		app:fragment="io.github.sspanak.tt9.preferences.screens.dictation.DictationScreen"
+		app:key="screen_dictation"
+		app:title="@string/dictation_screen_title" />
+
+	<Preference
 		app:fragment="io.github.sspanak.tt9.preferences.SetupScreen"
 		app:key="screen_setup"
 		app:title="@string/pref_category_setup" />

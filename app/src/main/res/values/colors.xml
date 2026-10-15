@@ -44,4 +44,16 @@
 	<color name="tutorial_button_background">#A1E483</color>
 	<color name="tutorial_button_text_color">#000</color>
 	<color name="tutorial_text_balloon_background">#fff</color>
+
+	<!--*******************************************
+		Settings screens (not the keyboard)
+	*******************************************-->
+
+	<color name="prefs_page_background">#f5f5f3</color>
+	<color name="prefs_title_background">#e0e2df</color>
+	<color name="prefs_title_text_color">#23262a</color>
+	<color name="prefs_text_color">#1b1e22</color> <!-- row titles -->
+	<color name="prefs_summary_text_color">#5d6167</color> <!-- summaries, section titles -->
+	<color name="prefs_accent">#2f7d72</color> <!-- the one accent -->
+	<color name="prefs_highlight">#262f7d72</color> <!-- the accent, at a strength that reads on the page -->
 </resources>

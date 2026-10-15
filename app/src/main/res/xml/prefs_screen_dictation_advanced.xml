@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	app:orderingFromXml="true">
+
+	<PreferenceCategory app:key="category_dictation_connection" app:title="@string/dictation_cloud_category_connection">
+
+		<io.github.sspanak.tt9.preferences.screens.dictation.DictationTextPreference
+			app:key="dictation_opencode_endpoint"
+			app:title="@string/dictation_cloud_endpoint_title"
+			app:summary="@string/dictation_cloud_endpoint_summary" />
+
+		<io.github.sspanak.tt9.preferences.screens.dictation.DictationTextPreference
+			app:key="dictation_opencode_model"
+			app:title="@string/dictation_cloud_model_title"
+			app:summary="@string/dictation_cloud_model_summary" />
+	</PreferenceCategory>
+
+	<PreferenceCategory app:key="category_dictation_cleanup" app:title="@string/dictation_cloud_category_cleanup">
+
+		<io.github.sspanak.tt9.preferences.screens.dictation.DictationTextPreference
+			app:key="dictation_opencode_prompt"
+			app:title="@string/dictation_cloud_prompt_title"
+			app:summary="@string/dictation_cloud_prompt_summary" />
+	</PreferenceCategory>
+
+	<PreferenceCategory app:key="category_dictation_key" app:title="@string/dictation_cloud_category_key">
+
+		<Preference
+			app:key="dictation_cloud_key_status"
+			app:title="@string/dictation_cloud_key_status_title" />
+
+		<io.github.sspanak.tt9.preferences.screens.dictation.DictationTextPreference
+			app:key="dictation_opencode_api_key"
+			app:title="@string/dictation_cloud_key_title"
+			app:summary="@string/dictation_cloud_key_summary" />
+
+		<Preference
+			app:key="dictation_cloud_key_import"
+			app:title="@string/dictation_cloud_key_import_title"
+			app:summary="@string/dictation_cloud_key_import_summary" />
+
+		<Preference
+			app:key="dictation_cloud_key_clear"
+			app:title="@string/dictation_cloud_key_clear_title"
+			app:summary="@string/dictation_cloud_key_clear_summary" />
+	</PreferenceCategory>
+
+	<Preference
+		app:key="dictation_cloud_save"
+		app:title="@string/dictation_cloud_save_title"
+		app:summary="@string/dictation_cloud_save_summary" />
+
+	<Preference
+		app:key="dictation_cloud_status"
+		app:title="@string/dictation_cloud_status_title" />
+
+</PreferenceScreen>

@@ -22,6 +22,30 @@ app/premium/
 release/
 app/src/full/assets/
 
+# Local packaging outputs (private: signed APKs and module zips, never publish)
+/dist/
+# Staging tree make-module.sh writes (dist/module) and any hand-made copy of it
+/dist/module/
+/module/
+
+# Local extraction and toolchain scratch: unpacked upstream APKs, pinned JDKs,
+# Gradle distributions and anything else pulled in for a build
+/work/
+/extract/
+/upstream/
+
+# Packed output of any build step. The dictionary and ngram inputs that upstream
+# ships in the repository under app/languages stay visible.
+*.idsig
+*.zip
+!/app/languages/**
+
+# Private dictation credentials: the OpenCode key staged for import. The real file
+# lives outside this repository, at ~/.config/qin-dictation/opencode-go.key, and
+# must never be added here.
+opencode-go.key
+*.key
+
 # Premium code (it's in a different repo)
 app/src/premium/
 

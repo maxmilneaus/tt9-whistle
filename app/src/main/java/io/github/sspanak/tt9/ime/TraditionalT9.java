@@ -13,6 +13,7 @@ import java.util.concurrent.Future;
 
 import io.github.sspanak.tt9.db.DataStore;
 import io.github.sspanak.tt9.db.words.DictionaryLoader;
+import io.github.sspanak.tt9.dictation.DictationEngine;
 import io.github.sspanak.tt9.hacks.InputType;
 import io.github.sspanak.tt9.ime.modes.InputModeKind;
 import io.github.sspanak.tt9.languages.LanguageCollection;
@@ -65,6 +66,7 @@ public class TraditionalT9 extends PremiumHandler {
 
 	@Override
 	public void onStartInput(EditorInfo inputField, boolean restarting) {
+		if (voiceInputOps.usesCustomDictation()) cancelVoiceInput();
 		Logger.i(
 			LOG_TAG,
 			"===> Start Up; packageName: " + inputField.packageName + " inputType: " + inputField.inputType + " actionId: " + inputField.actionId + " imeOptions: " + inputField.imeOptions + " privateImeOptions: " + inputField.privateImeOptions + " extras: " + inputField.extras
@@ -75,6 +77,9 @@ public class TraditionalT9 extends PremiumHandler {
 
 	@Override
 	public void onStartInputView(EditorInfo inputField, boolean restarting) {
+		// onInit() runs once per IME process, and the runner is released when the keyboard is
+		// hidden, so this is where it comes back: dictation first becomes possible here again.
+		DictationEngine.warmUpAsync(this);
 		onStart(inputField, restarting);
 	}
 
@@ -82,6 +87,7 @@ public class TraditionalT9 extends PremiumHandler {
 	@Override
 	public void onFinishInputView(boolean finishingInput) {
 		super.onFinishInputView(finishingInput);
+		if (voiceInputOps.usesCustomDictation()) cancelVoiceInput();
 		onFinishTyping(finishingInput);
 	}
 
@@ -121,6 +127,8 @@ public class TraditionalT9 extends PremiumHandler {
 		Logger.setLevel(settings.getLogLevel());
 
 		asyncInitThread = asyncInitThread == null ? SupremeExecutor.submit(this::runHeavyInitTasks) : asyncInitThread;
+		// Debug test seam, set only in debug builds: lets a debug broadcast press the voice key. See dictation/DebugHooks.java
+		if (io.github.sspanak.tt9.BuildConfig.DEBUG) io.github.sspanak.tt9.dictation.DebugHooks.voiceKey = this::toggleVoiceInput;
 
 		super.onInit();
 	}
@@ -191,7 +199,7 @@ public class TraditionalT9 extends PremiumHandler {
 
 	@Override
 	protected void onStop() {
-		stopVoiceInput();
+		if (voiceInputOps.usesCustomDictation()) cancelVoiceInput(); else stopVoiceInput();
 		onFinishTyping(true);
 		statusBar.setText(mInputMode);
 

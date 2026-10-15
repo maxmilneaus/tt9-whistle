@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug-only manifest additions. Not present in release builds. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+	<application>
+		<activity android:name="io.github.sspanak.tt9.dictation.TestFieldsActivity" android:exported="true" />
+		<receiver
+			android:name="io.github.sspanak.tt9.dictation.DebugClipReceiver"
+			android:exported="true">
+			<intent-filter>
+				<action android:name="io.github.sspanak.tt9.qin.DEBUG_DICTATE_CLIP" />
+			</intent-filter>
+		</receiver>
+		<receiver
+			android:name="io.github.sspanak.tt9.dictation.DebugVoiceKeyReceiver"
+			android:exported="true">
+			<intent-filter>
+				<action android:name="io.github.sspanak.tt9.qin.DEBUG_VOICE_KEY" />
+			</intent-filter>
+		</receiver>
+	</application>
+</manifest>

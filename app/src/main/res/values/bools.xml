@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!--
+		The settings title bar is a light surface in the day palette, so its clock and icons have to be
+		drawn dark. The keyboard theme does not use this value.
+	-->
+	<bool name="prefs_light_status_bar">true</bool>
+</resources>

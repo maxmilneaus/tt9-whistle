@@ -53,7 +53,44 @@
 		<item name="android:orientation">horizontal</item>
 	</style>
 
-	<style name="TTheme.Preferences" parent="Theme.AppCompat.DayNight" />
+	<!--
+		Settings only. The keyboard keeps using TTheme, which is not touched here, so the typing surface
+		looks exactly as it did.
+	-->
+	<style name="TTheme.Preferences" parent="Theme.AppCompat.DayNight">
+		<!-- title bar -->
+		<item name="colorPrimary">@color/prefs_title_background</item>
+		<item name="colorPrimaryDark">@color/prefs_title_background</item>
+		<item name="android:windowLightStatusBar">@bool/prefs_light_status_bar</item> <!-- dark clock and icons on the light title bar -->
+		<item name="actionBarTheme">@style/TTheme.Preferences.TitleBar</item>
+		<item name="toolbarStyle">@style/TTheme.Preferences.Toolbar</item>
+
+		<!-- page -->
+		<item name="android:windowBackground">@color/prefs_page_background</item>
+		<item name="android:textColorPrimary">@color/prefs_text_color</item> <!-- row titles -->
+		<item name="android:textColorSecondary">@color/prefs_summary_text_color</item> <!-- summaries and section titles -->
+
+		<!-- one accent, plus the press and focus highlight -->
+		<item name="colorAccent">@color/prefs_accent</item>
+		<item name="colorControlActivated">@color/prefs_accent</item>
+		<item name="colorControlNormal">@color/prefs_summary_text_color</item>
+		<item name="colorControlHighlight">@color/prefs_highlight</item>
+		<item name="android:colorControlHighlight">@color/prefs_highlight</item>
+
+		<!-- denser rows than the 64dp default; a row still grows when its summary needs the space -->
+		<item name="android:listPreferredItemHeight">@dimen/pref_row_min_height</item>
+	</style>
+
+	<!-- What sits on top of the title bar: the title itself and the icons next to it. -->
+	<style name="TTheme.Preferences.TitleBar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+		<item name="android:textColorPrimary">@color/prefs_title_text_color</item>
+		<item name="colorControlNormal">@color/prefs_title_text_color</item>
+	</style>
+
+	<style name="TTheme.Preferences.Toolbar" parent="@style/Widget.AppCompat.Toolbar">
+		<item name="android:background">@color/prefs_title_background</item>
+		<item name="titleTextColor">@color/prefs_title_text_color</item>
+	</style>
 
 	<style name="TTheme.Preferences.KeyboardPreview">
 		<item name="android:layout_width">wrap_content</item>

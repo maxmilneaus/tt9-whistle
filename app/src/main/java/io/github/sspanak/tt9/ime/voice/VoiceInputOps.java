@@ -1,6 +1,10 @@
 package io.github.sspanak.tt9.ime.voice;
 
 import android.content.Context;
+import android.inputmethodservice.InputMethodService;
+import android.view.inputmethod.EditorInfo;
+import io.github.sspanak.tt9.dictation.DictationEngine;
+import io.github.sspanak.tt9.dictation.DictationSettings;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
@@ -25,6 +29,11 @@ public class VoiceInputOps {
 	@NonNull private final Context ims;
 	@NonNull private final HashMap<Integer, Boolean> isOfflineModeDisabled;
 	private boolean forceAlternativeInput = false;
+	private DictationEngine dictation;
+	private DictationSettings dictationSettings;
+	private final Runnable onCustomStart;
+	private String customStatus = "";
+	private EditorInfo customTarget;
 	@Nullable private Language language;
 	@NonNull private final VoiceListener listener;
 	@NonNull private final SpeechRecognizerSupportLegacy recognizerSupport;
@@ -51,8 +60,24 @@ public class VoiceInputOps {
 		onListeningError = onError != null ? onError : error -> {};
 
 		this.ims = ims;
+		onCustomStart = onStart != null ? onStart : () -> {};
 	}
 
+
+
+    private DictationEngine dictation() {
+        if (dictation == null) dictation = DictationEngine.get(ims);
+        return dictation;
+    }
+
+    private DictationSettings dictationSettings() {
+        if (dictationSettings == null) dictationSettings = new DictationSettings(ims);
+        return dictationSettings;
+    }
+
+    public boolean isTranscribing() {
+        return dictation().isBusy() && !dictation().isRecording();
+    }
 
 	static String getLocale(@NonNull Language lang) {
 		return lang.getLocale().toString().replace("_", "-");
@@ -90,6 +115,7 @@ public class VoiceInputOps {
 
 
 	public boolean isAvailable() {
+		if (usesCustomDictation()) return true;
 		return
 			recognizerSupport.isAlternativeAvailable(ims)
 			|| recognizerSupport.isGoogleOnlineRecognitionAvailable(ims)
@@ -98,11 +124,12 @@ public class VoiceInputOps {
 
 
 	public boolean isListening() {
-		return listener.isListening() && speechRecognizer != null;
+		return dictation().isBusy() || (listener.isListening() && speechRecognizer != null);
 	}
 
 
 	public void listen(@Nullable Language language) {
+		if (usesCustomDictation()) { listenCustom(); return; }
 		this.language = language;
 		if (forceAlternativeInput || recognizerSupport.isAlternativeAvailable(ims)) {
 			ims.startActivity(VoiceInputPickerActivity.generateShowIntent(ims));
@@ -146,12 +173,58 @@ public class VoiceInputOps {
 
 
 	public void stop() {
+		if (dictation().isBusy()) { dictation().stop(); return; }
 		this.language = null;
 		if (speechRecognizer != null && isListening()) {
 			speechRecognizer.stopListening();
 		}
 	}
 
+
+
+    public boolean usesCustomDictation() {
+        return !DictationSettings.ENGINE_SYSTEM.equals(dictationSettings().getEngine());
+    }
+
+    public void cancel() {
+        dictation().cancel();
+        customTarget = null;
+        customStatus = "";
+        if (speechRecognizer != null) speechRecognizer.cancel();
+        destroy();
+    }
+
+    private void listenCustom() {
+        if (!(ims instanceof InputMethodService)) return;
+        InputMethodService service = (InputMethodService) ims;
+        customTarget = service.getCurrentInputEditorInfo();
+        dictation().start(new DictationEngine.Listener() {
+            public void onRecordingStarted() {
+                customStatus = "Recording · press voice to stop";
+                onCustomStart.run();
+            }
+            public void onTranscribing() {
+                customStatus = DictationSettings.ENGINE_OPENCODE.equals(dictationSettings().getEngine())
+                    ? "Transcribing · OpenCode" : "Transcribing · on this phone";
+                onCustomStart.run();
+            }
+            public void onResult(String text) {
+                if (customTarget != null && customTarget == service.getCurrentInputEditorInfo()
+                        && service.getCurrentInputConnection() != null) onStopListening.accept(text);
+                customTarget = null;
+                customStatus = "";
+            }
+            public void onNoSpeech() {
+                customStatus = "";
+                onListeningError.accept(new VoiceInputError(ims, SpeechRecognizer.ERROR_NO_MATCH));
+            }
+            public void onError(int code, String message) {
+                customStatus = "";
+                onListeningError.accept(new VoiceInputError(ims, code, message));
+                Logger.e(LOG_TAG, "Dictation failed, code " + code);
+            }
+        });
+    }
 
 	private void destroy() {
 		this.language = null;
@@ -222,6 +295,7 @@ public class VoiceInputOps {
 	@NonNull
 	@Override
 	public String toString() {
+		if (usesCustomDictation()) return customStatus;
 		String languageSuffix = language == null ? "" : " / " + language.getName();
 		return ims.getString(R.string.voice_input_listening) + languageSuffix;
 	}

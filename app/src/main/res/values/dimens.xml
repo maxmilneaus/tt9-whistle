@@ -23,8 +23,10 @@
 	<dimen name="preview_header_height">52dp</dimen>
 
 	<dimen name="pref_custom_min_height">48dp</dimen>
+	<!-- a settings row: fewer rows scroll away on a 480x640 screen, still above the 48dp touch target -->
+	<dimen name="pref_row_min_height">54dp</dimen>
 	<dimen name="pref_custom_spacing_horizontal">16dp</dimen>
-	<dimen name="pref_custom_spacing_vertical">12dp</dimen>
+	<dimen name="pref_custom_spacing_vertical">10dp</dimen>
 	<dimen name="pref_deletable_word_icon_size">32sp</dimen>
 
 	<!-- Preferences, large text size -->

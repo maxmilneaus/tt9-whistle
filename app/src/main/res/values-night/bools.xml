@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- Dark title bar at night, so the clock and icons stay white. -->
+	<bool name="prefs_light_status_bar">false</bool>
+</resources>
