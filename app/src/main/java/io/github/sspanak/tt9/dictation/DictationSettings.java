@@ -43,6 +43,12 @@ public final class DictationSettings {
 	/** Hint words, one per line or separated by commas: names, jargon, product words. */
 	public static final String KEY_KEYWORDS = "pref_voice_keywords";
 
+	/** Keep the loaded model resident between dictations, instead of unloading it on keyboard close. */
+	public static final String KEY_KEEP_WARM = "pref_voice_keep_warm";
+
+	/** Reloading the model costs more than the memory it holds, so keeping it is the default. */
+	public static final boolean KEEP_WARM_DEFAULT = true;
+
 	/** The whole model. Also the largest depth the runner accepts. */
 	public static final int DEPTH_FULL = 8;
 	/** The smallest depth the runner accepts. */
@@ -91,6 +97,13 @@ public final class DictationSettings {
 	public boolean isOnDevice() { return ENGINE_WHISTLE.equals(getEngine()); }
 	public boolean isCloud() { return ENGINE_OPENCODE.equals(getEngine()); }
 	public boolean isSystem() { return ENGINE_SYSTEM.equals(getEngine()); }
+
+
+	/** Whether the loaded on-device model stays in memory between dictations. */
+	public boolean getKeepWarm() { return prefs.getBoolean(KEY_KEEP_WARM, KEEP_WARM_DEFAULT); }
+
+
+	public void setKeepWarm(boolean keepWarm) { prefs.edit().putBoolean(KEY_KEEP_WARM, keepWarm).apply(); }
 
 
 	public int getDepth() {

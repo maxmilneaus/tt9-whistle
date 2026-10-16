@@ -23,16 +23,18 @@
 
 	<string name="dictation_category_on_device" translatable="false">On-device engine</string>
 	<string name="dictation_depth_title" translatable="false">Depth and speed</string>
-	<string name="dictation_depth_fast" translatable="false">Fast - lower accuracy</string>
-	<string name="dictation_depth_balanced" translatable="false">Balanced - 4 layers</string>
-	<string name="dictation_depth_six" translatable="false">6 layers (advanced, unmeasured)</string>
-	<string name="dictation_depth_accuracy" translatable="false">Accuracy - full model</string>
+	<string name="dictation_depth_fast" translatable="false">Fastest - mishears more</string>
+	<string name="dictation_depth_balanced" translatable="false">Balanced - 4 layers (recommended)</string>
+	<string name="dictation_depth_six" translatable="false">6 layers (advanced)</string>
+	<string name="dictation_depth_accuracy" translatable="false">Full model - slowest, no measured gain</string>
 	<string name="dictation_threads_title" translatable="false">Processor threads</string>
 	<string name="dictation_threads_auto" translatable="false">Automatic (engine decides)</string>
 	<string name="dictation_threads_default" translatable="false">%1$d threads (default)</string>
 	<string name="dictation_threads_one" translatable="false">1 thread</string>
 	<string name="dictation_threads_many" translatable="false">%1$d threads</string>
 	<string name="dictation_language_title" translatable="false">Language</string>
+	<string name="dictation_keep_warm_title" translatable="false">Keep the voice model in memory</string>
+	<string name="dictation_keep_warm_summary" translatable="false">Dictation starts straight away, holding about 24 MB while the phone has room. Turn it off to unload the model when the keyboard closes and reload it next time.</string>
 	<string name="dictation_keywords_title" translatable="false">Words to expect</string>
 	<string name="dictation_keywords_summary" translatable="false">Names, jargon and product words, separated by commas. The engine is told to favour them.</string>
 	<string name="dictation_language_en" translatable="false">English</string>

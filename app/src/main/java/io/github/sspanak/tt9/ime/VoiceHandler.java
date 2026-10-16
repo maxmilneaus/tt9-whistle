@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 
 import io.github.sspanak.tt9.R;
 import io.github.sspanak.tt9.dictation.DictationEngine;
+import io.github.sspanak.tt9.dictation.DictationSettings;
 import io.github.sspanak.tt9.ime.modes.helpers.AutoTextCase;
 import io.github.sspanak.tt9.ime.modes.helpers.Sequences;
 import io.github.sspanak.tt9.ime.voice.VoiceInputError;
@@ -38,6 +39,18 @@ abstract class VoiceHandler extends SuggestionHandler {
 			this::onVoiceInputPartial,
 			this::onVoiceInputError
 		);
+	}
+
+
+	@Override
+	public void onFinishInputView(boolean finishingInput) {
+		super.onFinishInputView(finishingInput);
+
+		// Only hand the model back when the user has chosen memory over speed. Otherwise it stays
+		// loaded, so the next dictation does not pay for the 16.9 MB model again.
+		if (!new DictationSettings(this).getKeepWarm()) {
+			DictationEngine.releaseResources();
+		}
 	}
 
 	@Override

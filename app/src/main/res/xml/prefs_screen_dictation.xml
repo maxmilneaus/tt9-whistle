@@ -20,6 +20,8 @@
 		<io.github.sspanak.tt9.preferences.screens.dictation.DropDownWhistleThreads app:title="@string/dictation_threads_title" />
 
 		<io.github.sspanak.tt9.preferences.screens.dictation.DropDownWhistleLanguage app:title="@string/dictation_language_title" />
+
+		<io.github.sspanak.tt9.preferences.screens.dictation.SwitchKeepModelLoaded />
 	
 		<io.github.sspanak.tt9.preferences.screens.dictation.DictationKeywordsPreference
 			app:key="dictation_whistle_keywords"
