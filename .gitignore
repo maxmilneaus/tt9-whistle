@@ -15,6 +15,14 @@ gen/
 # Gradle/build files
 .gradle/
 assets/
+# The speech model is redistributed with this fork under Apache-2.0 (see
+# THIRD-PARTY.md), so it stays tracked even though the other generated assets
+# under app/src/main/assets do not.
+!app/src/main/assets/
+app/src/main/assets/*
+!app/src/main/assets/whistle/
+app/src/main/assets/whistle/*
+!app/src/main/assets/whistle/whistle.cact
 build/
 app/full/
 app/lite/

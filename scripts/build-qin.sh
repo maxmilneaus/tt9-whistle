@@ -51,7 +51,7 @@ readonly APP_VERSION_NAME="64.0-qin"
 readonly APP_VERSION_CODE="1646"
 readonly ASSEMBLE_TASK=":app:assembleLiteRelease"
 
-readonly DEFAULT_JAVA_HOME="/Users/maxmilne/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home"
+readonly DEFAULT_JAVA_HOME="${HOME}/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home"
 readonly PINNED_GRADLE="$WORKSPACE_ROOT/work/toolchains/gradle-9.5.0/bin/gradle"
 
 readonly WHISTLE_MODEL="$MAIN_ASSETS/whistle/whistle.cact"

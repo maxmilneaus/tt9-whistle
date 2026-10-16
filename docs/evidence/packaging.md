@@ -23,8 +23,8 @@ flashes, reboots or talks to a device.
 ## scripts/build-qin.sh
 
 1. Prerequisites, each failing with the name of what is missing:
-   * JDK: `JAVA_HOME` when set, otherwise
-     `/Users/maxmilne/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home`.
+   * JDK: `JAVA_HOME` when set, otherwise the default Temurin 17 install under
+     the user's home directory (`$HOME/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home`).
      Must be 17 or newer.
    * Gradle: `GRADLE` when set, otherwise the pinned local copy
      `../../work/toolchains/gradle-9.5.0/bin/gradle`. The wrapper is deliberately
