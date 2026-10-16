@@ -41,15 +41,6 @@ abstract class VoiceHandler extends SuggestionHandler {
 	}
 
 	@Override
-	public void onFinishInputView(boolean finishingInput) {
-		super.onFinishInputView(finishingInput);
-		
-		// The keyboard is gone, so hand the ~45 MB native runner back until it is needed again.
-		DictationEngine.releaseResources();
-	}
-	
-	
-	@Override
 	protected Ternary onBack() {
 		if (voiceInputOps.usesCustomDictation()) cancelVoiceInput(); else stopVoiceInput();
 		return Ternary.FALSE; // we don't want to abort other operations, we just silently stop voice input

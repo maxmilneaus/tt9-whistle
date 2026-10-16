@@ -1,5 +1,6 @@
 package io.github.sspanak.tt9.ime;
 
+import android.content.ComponentCallbacks2;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
@@ -296,12 +297,23 @@ public class TraditionalT9 extends PremiumHandler {
 
 
 	@Override
+	public void onTrimMemory(int level) {
+		// Give the loaded model back only when the system says it is running out, rather
+		// than every time the keyboard hides. Keeping it costs about 45 MB resident.
+		if (level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL) {
+			DictationEngine.releaseResources();
+		}
+	}
+
+
+	@Override
 	public void onDestroy() {
 		if (isDead) {
 			Logger.w(LOG_TAG, "===> Already dead. Not destroying self.");
 			return;
 		}
 
+		DictationEngine.releaseResources();
 		cleanUp();
 		isDead = true;
 
