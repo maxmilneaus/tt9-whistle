@@ -428,9 +428,19 @@ public final class DictationEngine {
 			return null;
 		}
 	}
-	/** Frees the idle warm engine. Safe to call at any time. */
-	public static void releaseResources() {
-		PreparedWhistleTranscriber.release();
+/**
+	 * Frees the idle warm engine. Safe to call at any time, and deliberately does not wait: stopping
+	 * the runner kills a process and waits for it to die, and the callers are IME lifecycle callbacks
+	 * on the main thread. Waiting there holds up hiding the keyboard, so the work is handed to the
+	 * same serial worker that starts the runner, which also keeps the two from interleaving.
+	 */
+public static void releaseResources() {
+		worker().submit(new Runnable() {
+			@Override
+			public void run() {
+				PreparedWhistleTranscriber.release();
+			}
+		});
 	}
 
 

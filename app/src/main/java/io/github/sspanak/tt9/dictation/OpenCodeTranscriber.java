@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -51,6 +52,19 @@ public class OpenCodeTranscriber implements Transcriber {
 			+ "speech. Return only the transcript as the message content.";
 
 	private static final int WAV_HEADER_BYTES = 12;
+
+	/**
+	 * The upstream wordings that mean "audio is not part of this model's input". Telling them apart
+	 * from a malformed request relies on the rejection body, because both arrive as a 400, and a
+	 * wrong match would send the user after the wrong fix, so the list stays narrow.
+	 */
+	private static final String[] AUDIO_UNSUPPORTED_MARKERS = {
+		"unsupported_content_type",
+		"does not read audio",
+		"does not support audio",
+		"doesn't support audio",
+		"doesnt support audio"
+	};
 
 	private final OpenCodeSettings settings;
 	private volatile boolean cancelled;
@@ -206,6 +220,9 @@ public class OpenCodeTranscriber implements Transcriber {
 			throwIfCancelled();
 			int status = opened.getResponseCode();
 			throwIfCancelled();
+			if (status == HttpURLConnection.HTTP_BAD_REQUEST) {
+				rejectUnsupportedAudioModel(opened);
+			}
 			requireSuccessfulStatus(status);
 
 			if (opened.getContentLengthLong() > MAX_RESPONSE_BYTES) {
@@ -274,6 +291,49 @@ public class OpenCodeTranscriber implements Transcriber {
 		);
 	}
 
+
+	/**
+	 * A model that cannot read audio is a configuration problem, not a broken request, so it gets
+	 * its own message. Every other rejection keeps the generic wording.
+	 */
+	private void rejectUnsupportedAudioModel(HttpURLConnection connection) throws ApiException {
+		if (!refusesAudio(readErrorBody(connection))) {
+			return;
+		}
+
+		throw new ApiException(
+			ApiException.Reason.MODEL_NO_AUDIO,
+			"This cloud model cannot read audio. Pick a model that accepts audio, or switch to the on-device engine."
+		);
+	}
+
+	/** The rejection body. An unreadable one reads as empty; the status code alone still decides. */
+	private String readErrorBody(HttpURLConnection connection) {
+		InputStream stream = connection.getErrorStream();
+		if (stream == null) {
+			return "";
+		}
+
+		try {
+			return readBounded(stream);
+		} catch (Exception unreadable) {
+			return "";
+		}
+	}
+
+	static boolean refusesAudio(String errorBody) {
+		if (errorBody == null) {
+			return false;
+		}
+
+		String body = errorBody.toLowerCase(Locale.ROOT);
+		for (String marker : AUDIO_UNSUPPORTED_MARKERS) {
+			if (body.contains(marker)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	private String readBounded(InputStream input) throws Exception {
 		ByteArrayOutputStream output = new ByteArrayOutputStream(Math.min(8_192, MAX_RESPONSE_BYTES));
@@ -468,6 +528,7 @@ public class OpenCodeTranscriber implements Transcriber {
 			NETWORK,
 			SERVER,
 			REJECTED,
+			MODEL_NO_AUDIO,
 			NO_TEXT
 		}
 
