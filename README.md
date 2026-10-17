@@ -69,9 +69,17 @@ These are measured or observed, not impressions:
 
 ## Install
 
-See [INSTALL.md](INSTALL.md). There are two paths: a plain app install that needs no root,
-and a Magisk module for phones whose firmware refuses the first one (the Qin F22 non-Pro
-is one).
+**32-bit or 64-bit ARM Android phone?** Download the same
+[TT9Whistle64.apk](https://github.com/maxmilneaus/tt9-whistle/releases/download/v64.0-qin/TT9Whistle64.apk).
+It includes both engine versions and the speech model. Start with the ordinary app
+install in [INSTALL.md](INSTALL.md#path-a---install-as-an-ordinary-app-no-root);
+no separate Cactus download or root is needed for that route. Android 7.0 or newer is
+required. Bundled architecture support does not mean every handset has been tested.
+
+The alternative Magisk ZIP was prepared for the **32-bit Qin F22 non-Pro** when its
+firmware refuses normal installs. It assumes root is already working and must not be
+used unchanged as a generic 64-bit module. See
+[the download guide](INSTALL.md#32-bit-and-64-bit-phones) before choosing a file.
 
 ## Licence
 
