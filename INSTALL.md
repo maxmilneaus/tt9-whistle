@@ -15,6 +15,29 @@ the first one.
   function key 3 on that pad. The same keys are also on the on-screen keypad and in the
   function palette, which is what the emulator runs on.
 
+## 32-bit and 64-bit phones
+
+Use the same [TT9Whistle64.apk](https://github.com/maxmilneaus/tt9-whistle/releases/download/v64.0-qin/TT9Whistle64.apk)
+for 32-bit ARM (`armeabi-v7a`) and 64-bit ARM (`arm64-v8a`) Android phones. Both engines
+and the speech model are already inside this download; you do not need to build the
+app or download Cactus components separately. Android selects the matching engine at
+installation. Android 7.0 or newer is required; x86 is not supported.
+
+On a 64-bit phone, try **Path A** below. Enable TT9 Whistle as the keyboard and grant
+microphone access when prompted. Architecture support is not a guarantee for every
+phone or firmware; physical-handset results so far are from the Qin F22 non-Pro.
+
+The released **Magisk ZIP is a different route**: it stages the native engine under
+`system/app/TT9Whistle/lib/arm/` for the original 32-bit F22. It is not a generic
+64-bit Magisk module. If a different phone also blocks normal app installs, its
+architecture, firmware and system-app library layout need checking before adapting
+the module. Rooting or unlocking that phone is separate from installing this app.
+
+For developers using Whistle in another project, Cactus supplies the model and the
+[Android ARM64 engine](https://huggingface.co/Cactus-Compute/needle3/tree/main/android-arm64)
+through [its Whistle page](https://cactuscompute.com/blog/whistle). These are engine
+components, not a separate TT9 Whistle keyboard installer.
+
 ## Path A - install as an ordinary app (no root)
 
 Try this first; it is the normal Android install path.
@@ -47,7 +70,7 @@ against refuses installs at the ROM level. Its vendor build of
 app-count limit. That is a property of that phone's firmware rather than of this APK, and
 it is why Path B exists.
 
-## Path B - Magisk module (rooted devices, and the Qin F22)
+## Path B - Magisk module (rooted 32-bit Qin F22)
 
 The released module zip installs the app as a preinstalled system app. It contains:
 
