@@ -26,9 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * finished recording through an app-private FIFO when a dictation stops.
  *
  * The runner loads the model before it waits for a writer, so the delay after the recording ends
- * covers decoding only. Desktop measurement of this exact protocol (macOS arm64 runner, depth 4,
- * threads 4): model resident at 0.8 s with the FIFO still untouched, no output before EOF, and
- * result plus exit about 0.12 s after EOF. Peak RSS 43-45 MB. See tests/whistle/README.md.
+ * covers decoding only. See tests/whistle/README.md.
  *
  * The public Needle C API has no depth or thread entry point, so the warm engine is the shipped
  * runner driven with the same flags LocalWhistleTranscriber uses. There is no native worker and
@@ -98,10 +96,6 @@ public final class PreparedWhistleTranscriber implements Transcriber {
 	private final AtomicBoolean cancelled = new AtomicBoolean(false);
 	private volatile Process activeProcess;
 
-	public PreparedWhistleTranscriber(Context context, String binary, String model, int depth, int threads) {
-		this(binary, model, depth, threads, language(context), null);
-	}
-	
 	public PreparedWhistleTranscriber(Context context, String binary, String model, int depth, int threads, String keywords) {
 		this(binary, model, depth, threads, language(context), keywords);
 	}

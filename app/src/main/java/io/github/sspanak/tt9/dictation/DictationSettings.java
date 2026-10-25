@@ -69,7 +69,16 @@ public final class DictationSettings {
 	/** The languages the pinned on-device model supports. Another one would only fail at run time. */
 	public static final String[] SUPPORTED_LANGUAGES = { "en", "de", "fr", "es", "it", "nl", "pl" };
 
+	/** Log tag; the value is kept stable so existing log filters keep matching. */
+	private static final String LOG_TAG = "TT9Dictation";
+
 	@NonNull private final SharedPreferences prefs;
+
+	/** Guards the keyword-file memo below: the words are read and written from more than one thread. */
+	private static final Object KEYWORDS_CACHE_LOCK = new Object();
+	/** The list the remembered keyword file belongs to, and that file; both null until one is resolved. */
+	private static String cachedKeywords;
+	private static File cachedKeywordsFile;
 
 
 	public DictationSettings(@NonNull Context context) {
@@ -94,25 +103,12 @@ public final class DictationSettings {
 	}
 
 
-	public boolean isOnDevice() { return ENGINE_WHISTLE.equals(getEngine()); }
-	public boolean isCloud() { return ENGINE_OPENCODE.equals(getEngine()); }
-	public boolean isSystem() { return ENGINE_SYSTEM.equals(getEngine()); }
-
-
 	/** Whether the loaded on-device model stays in memory between dictations. */
 	public boolean getKeepWarm() { return prefs.getBoolean(KEY_KEEP_WARM, KEEP_WARM_DEFAULT); }
 
 
-	public void setKeepWarm(boolean keepWarm) { prefs.edit().putBoolean(KEY_KEEP_WARM, keepWarm).apply(); }
-
-
 	public int getDepth() {
 		return clampDepth(getStringifiedInt(KEY_DEPTH, DEPTH_DEFAULT));
-	}
-
-
-	public void setDepth(int depth) {
-		prefs.edit().putString(KEY_DEPTH, String.valueOf(clampDepth(depth))).apply();
 	}
 
 
@@ -142,11 +138,6 @@ public final class DictationSettings {
 
 	public int getThreads() {
 		return clampThreads(getStringifiedInt(KEY_THREADS, THREADS_DEFAULT));
-	}
-
-
-	public void setThreads(int threads) {
-		prefs.edit().putString(KEY_THREADS, String.valueOf(clampThreads(threads))).apply();
 	}
 
 
@@ -190,6 +181,9 @@ public final class DictationSettings {
 	 * named after its own contents, so an edited list is a different path: the warm engine keys on the
 	 * path, which makes a changed list start a fresh runner with no other invalidation.
 	 *
+	 * An unchanged list is remembered, so the common case skips the hashing and the folder scan, and the
+	 * memo is re-checked against the file so one that was cleaned up is written again.
+	 *
 	 * @return the file to pass to the runner, or null when no words are set.
 	 */
 	@Nullable
@@ -199,6 +193,11 @@ public final class DictationSettings {
 			return null;
 		}
 	
+		final File remembered = rememberedKeywordsFile(words);
+		if (remembered != null) {
+			return remembered;
+		}
+
 		final File dir = new File(context.getFilesDir(), "whistle");
 		final File target = new File(dir, "keywords-" + shortDigest(words) + ".txt");
 		// Drop any earlier list. Deleting a file the engine still holds open is safe here.
@@ -206,12 +205,13 @@ public final class DictationSettings {
 		if (stale != null) {
 			for (File old : stale) {
 				if (!old.delete()) {
-					Logger.d("TT9Dictation", "Could not remove the old keyword list " + old.getName());
+					Logger.d(LOG_TAG, "Could not remove the old keyword list " + old.getName());
 				}
 			}
 		}
 	
 		if (target.isFile() && target.length() > 0) {
+			rememberKeywordsFile(words, target);
 			return target;
 		}
 		if (!dir.isDirectory() && !dir.mkdirs()) {
@@ -226,7 +226,38 @@ public final class DictationSettings {
 		if (!partial.renameTo(target)) {
 			throw new IOException("Cannot install the keyword list.");
 		}
+		rememberKeywordsFile(words, target);
 		return target;
+	}
+
+	/**
+	 * The file this exact list resolved to last time, or null when it must be worked out again. The
+	 * entry is dropped as soon as the file stops existing or stops having content, so a cleaned-up
+	 * file is written again instead of being handed to the runner as a path that is not there.
+	 */
+	@Nullable
+	private static File rememberedKeywordsFile(@NonNull String words) {
+		synchronized (KEYWORDS_CACHE_LOCK) {
+			if (!words.equals(cachedKeywords)) {
+				return null;
+			}
+
+			final File file = cachedKeywordsFile;
+			if (file == null || !file.isFile() || file.length() == 0) {
+				cachedKeywords = null;
+				cachedKeywordsFile = null;
+				return null;
+			}
+
+			return file;
+		}
+	}
+
+	private static void rememberKeywordsFile(@NonNull String words, @NonNull File file) {
+		synchronized (KEYWORDS_CACHE_LOCK) {
+			cachedKeywords = words;
+			cachedKeywordsFile = file;
+		}
 	}
 	
 	

@@ -200,12 +200,15 @@ public class VoiceInputOps {
         customTarget = service.getCurrentInputEditorInfo();
         dictation().start(new DictationEngine.Listener() {
             public void onRecordingStarted() {
-                customStatus = "Recording · press voice to stop";
+                customStatus = ims.getString(R.string.dictation_status_recording);
                 onCustomStart.run();
             }
             public void onTranscribing() {
-                customStatus = DictationSettings.ENGINE_OPENCODE.equals(dictationSettings().getEngine())
-                    ? "Transcribing · OpenCode" : "Transcribing · on this phone";
+                customStatus = ims.getString(
+                    DictationSettings.ENGINE_OPENCODE.equals(dictationSettings().getEngine())
+                        ? R.string.dictation_status_transcribing_cloud
+                        : R.string.dictation_status_transcribing_on_device
+                );
                 onCustomStart.run();
             }
             public void onResult(String text) {

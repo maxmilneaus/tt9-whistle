@@ -18,12 +18,13 @@ TT9_REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 TT9_MUTANT="$(mktemp -d "${TMPDIR:-/tmp}/tt9-opencode-mutant.XXXXXX")"
 TT9_DEST="$TT9_MUTANT/app/src/main/java/io/github/sspanak/tt9/dictation"
 
-mkdir -p "$TT9_DEST" "$TT9_MUTANT/tests/opencode"
+mkdir -p "$TT9_DEST" "$TT9_MUTANT/tests/opencode" "$TT9_MUTANT/tests/whistle"
 cp "$TT9_REPO/app/src/main/java/io/github/sspanak/tt9/dictation/OpenCodeSettings.java" "$TT9_DEST/"
 cp "$TT9_REPO/app/src/main/java/io/github/sspanak/tt9/dictation/OpenCodeTranscriber.java" "$TT9_DEST/"
 cp "$TT9_REPO"/tests/opencode/*.java "$TT9_MUTANT/tests/opencode/"
 cp "$TT9_REPO"/tests/opencode/*.sh "$TT9_MUTANT/tests/opencode/"
 cp -R "$TT9_REPO/tests/opencode/android" "$TT9_MUTANT/tests/opencode/"
+cp "$TT9_REPO/tests/whistle/WhistleCheck.java" "$TT9_MUTANT/tests/whistle/"
 
 # 1. the key is encrypted without being trimmed first
 perl -0pi -e 's/keyProtector\.encrypt\(trimmedKey\)/keyProtector.encrypt(key)/' "$TT9_DEST/OpenCodeSettings.java"

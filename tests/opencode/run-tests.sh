@@ -113,6 +113,8 @@ fi
 
 TT9_SOURCES="$TT9_BUILD/sources.txt"
 : > "$TT9_SOURCES"
+# The assertion helper is shared with the Whistle suite; there is one copy of it.
+printf '"%s"\n' "$TT9_REPO/tests/whistle/WhistleCheck.java" >> "$TT9_SOURCES"
 printf '"%s"\n' "$TT9_DICTATION/OpenCodeSettings.java" >> "$TT9_SOURCES"
 printf '"%s"\n' "$TT9_DICTATION/OpenCodeTranscriber.java" >> "$TT9_SOURCES"
 printf '"%s"\n' "$TT9_TRANSCRIBER" >> "$TT9_SOURCES"

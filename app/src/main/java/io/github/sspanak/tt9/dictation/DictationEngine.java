@@ -39,6 +39,9 @@ public final class DictationEngine {
 	public static final String MODEL_ASSET = "whistle/whistle.cact";
 	static final String MODEL_FILE_NAME = "whistle.cact";
 
+	/** Log tag; the value is kept stable so existing log filters keep matching. */
+	private static final String LOG_TAG = "TT9Dictation";
+
 	/**
 	 * Debug-only hook (set by the debug build receiver): when non-null, the next session reads this
 	 * stored asset WAV at real-time pace instead of the microphone. Never set in release builds.
@@ -186,7 +189,7 @@ public final class DictationEngine {
 		InputStream clip = null;
 		try {
 			if (clipAsset != null) {
-				android.util.Log.i("TT9Dictation", "Reading stored clip (debug/test only): " + clipAsset);
+				android.util.Log.i(LOG_TAG, "Reading stored clip (debug/test only): " + clipAsset);
 				byte[] clipPcm = StoredClip.readPcm16Mono(appContext.getAssets().open(clipAsset));
 				clip = new ByteArrayInputStream(clipPcm);
 			} else {
@@ -202,7 +205,7 @@ public final class DictationEngine {
 					throw new IOException("Microphone is not available.");
 				}
 				recorder.startRecording();
-				android.util.Log.i("TT9Dictation", "Recording from microphone (MIC source, " + SAMPLE_RATE_HZ + " Hz, mono, PCM16)");
+				android.util.Log.i(LOG_TAG, "Recording from microphone (MIC source, " + SAMPLE_RATE_HZ + " Hz, mono, PCM16)");
 			}
 
 			byte[] buffer = new byte[READ_BYTES];
@@ -325,10 +328,6 @@ public final class DictationEngine {
 		}
 	}
 
-	public static Transcriber createOnDeviceTranscriber(Context context) throws IOException {
-		return get(context).createWhistleTranscriber();
-	}
-
 	Transcriber createWhistleTranscriber() throws IOException {
 		return new OnDeviceTranscriber();
 	}
@@ -369,7 +368,7 @@ public final class DictationEngine {
 				} catch (IOException warmFailed) {
 					// The runner replaces itself as it is used, so a failure here is a real fault
 					// rather than a stale slot. One per-call retry still beats an error message.
-					Logger.d("TT9Dictation", "Warm engine failed, retrying per call. " + warmFailed.getMessage());
+					Logger.d(LOG_TAG, "Warm engine failed, retrying per call. " + warmFailed.getMessage());
 				} finally {
 					active = null;
 				}
@@ -424,17 +423,17 @@ public final class DictationEngine {
 			File keywords = DictationSettings.writeKeywordsFile(context);
 			return keywords == null ? null : keywords.getAbsolutePath();
 		} catch (IOException error) {
-			Logger.d("TT9Dictation", "Could not write the keyword list. " + error.getMessage());
+			Logger.d(LOG_TAG, "Could not write the keyword list. " + error.getMessage());
 			return null;
 		}
 	}
-/**
+	/**
 	 * Frees the idle warm engine. Safe to call at any time, and deliberately does not wait: stopping
 	 * the runner kills a process and waits for it to die, and the callers are IME lifecycle callbacks
 	 * on the main thread. Waiting there holds up hiding the keyboard, so the work is handed to the
 	 * same serial worker that starts the runner, which also keeps the two from interleaving.
 	 */
-public static void releaseResources() {
+	public static void releaseResources() {
 		worker().submit(new Runnable() {
 			@Override
 			public void run() {

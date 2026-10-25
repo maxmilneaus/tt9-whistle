@@ -21,6 +21,10 @@
 	<string name="dictation_status_cloud_no_network" translatable="false">No internet permission in this build.</string>
 	<string name="dictation_status_system" translatable="false">Uses the voice service Android has selected. Unchanged from upstream TT9.</string>
 
+	<string name="dictation_status_recording" translatable="false">Recording · press voice to stop</string>
+	<string name="dictation_status_transcribing_cloud" translatable="false">Transcribing · OpenCode</string>
+	<string name="dictation_status_transcribing_on_device" translatable="false">Transcribing · on this phone</string>
+
 	<string name="dictation_category_on_device" translatable="false">On-device engine</string>
 	<string name="dictation_depth_title" translatable="false">Depth and speed</string>
 	<string name="dictation_depth_fast" translatable="false">Fastest - mishears more</string>

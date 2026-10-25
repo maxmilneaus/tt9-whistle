@@ -4,6 +4,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 /** Deterministic audio bytes for the JVM harness; no recording and no device involved. */
 final class Fixtures {
 	static final byte[] SAMPLES = {0, 0, 1, 0, -1, -1, 32, 0, -32, -1};
@@ -31,5 +34,33 @@ final class Fixtures {
 		buffer.putInt(pcm.length);
 		buffer.put(pcm);
 		return buffer.array();
+	}
+
+
+	/** A canned chat-completions reply with a stop reason, the shape the service returns. */
+	static String reply(String content) {
+		return reply((Object) content, "stop");
+	}
+
+
+	/** A canned reply with an explicit finish_reason; null is written as JSON null. */
+	static String reply(Object content, String finishReason) {
+		try {
+			return new JSONObject()
+				.put("choices", new JSONArray().put(new JSONObject()
+					.put("finish_reason", finishReason == null ? JSONObject.NULL : finishReason)
+					.put("message", new JSONObject()
+						.put("role", "assistant")
+						.put("content", content))))
+				.toString();
+		} catch (Exception error) {
+			throw new IllegalStateException(error);
+		}
+	}
+
+
+	/** A canned reply whose message content is JSON null. */
+	static String replyNullContent() {
+		return reply((Object) JSONObject.NULL, "stop");
 	}
 }

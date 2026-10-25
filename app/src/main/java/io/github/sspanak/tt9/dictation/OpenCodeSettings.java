@@ -164,6 +164,17 @@ public class OpenCodeSettings {
 	}
 
 
+	/**
+	 * The one HTTPS-only endpoint policy, shared by the setup screen's save path and the send path so
+	 * the two can never drift apart: the already-parsed scheme must be HTTPS, a host must be present,
+	 * and the URL itself must not carry credentials. Calling it with a null userInfo asks only whether
+	 * the scheme and host are acceptable.
+	 */
+	static boolean isAllowedEndpoint(String scheme, String host, String userInfo) {
+		return "https".equalsIgnoreCase(scheme) && host != null && !host.isEmpty() && userInfo == null;
+	}
+
+
 	/** Requires a credential-free HTTPS endpoint; an empty value means the default. */
 	static String requireHttpsEndpoint(String value) {
 		String endpoint = value == null ? "" : value.trim();
@@ -178,10 +189,10 @@ public class OpenCodeSettings {
 			throw new IllegalArgumentException("The endpoint must be an HTTPS URL.");
 		}
 
-		if (!"https".equalsIgnoreCase(uri.getScheme()) || uri.getHost() == null || uri.getHost().isEmpty()) {
+		if (!isAllowedEndpoint(uri.getScheme(), uri.getHost(), null)) {
 			throw new IllegalArgumentException("The endpoint must be an HTTPS URL.");
 		}
-		if (uri.getUserInfo() != null) {
+		if (!isAllowedEndpoint(uri.getScheme(), uri.getHost(), uri.getUserInfo())) {
 			throw new IllegalArgumentException("The endpoint must not contain credentials.");
 		}
 

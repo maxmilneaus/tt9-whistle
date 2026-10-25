@@ -442,10 +442,10 @@ public class OpenCodeTranscriber implements Transcriber {
 			throw new ApiException(ApiException.Reason.CONFIGURATION, "The transcription endpoint is not a valid URL.");
 		}
 
-		if (!"https".equalsIgnoreCase(url.getProtocol()) || url.getHost() == null || url.getHost().isEmpty()) {
+		if (!OpenCodeSettings.isAllowedEndpoint(url.getProtocol(), url.getHost(), null)) {
 			throw new ApiException(ApiException.Reason.CONFIGURATION, "The transcription endpoint must use HTTPS.");
 		}
-		if (url.getUserInfo() != null) {
+		if (!OpenCodeSettings.isAllowedEndpoint(url.getProtocol(), url.getHost(), url.getUserInfo())) {
 			throw new ApiException(
 				ApiException.Reason.CONFIGURATION,
 				"The transcription endpoint must not contain credentials."

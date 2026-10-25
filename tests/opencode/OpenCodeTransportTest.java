@@ -22,9 +22,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import io.github.sspanak.tt9.dictation.OpenCodeTranscriber.ApiException;
 
 /**
@@ -62,50 +59,49 @@ final class OpenCodeTransportTest {
 
 		HttpsServer server = startServer(args[0]);
 		String endpoint = "https://localhost:" + server.getAddress().getPort() + "/chat/completions";
-		Harness harness = new Harness("OpenCodeTransport");
 
 		try {
-			successfulRoundTrip(harness, endpoint);
-			statusMapping(harness, endpoint);
-			redirects(harness, endpoint);
-			oversizedResponse(harness, endpoint);
-			cancellation(harness, endpoint);
-			timeouts(harness);
-			credentials(harness);
+			successfulRoundTrip(endpoint);
+			statusMapping(endpoint);
+			redirects(endpoint);
+			oversizedResponse(endpoint);
+			cancellation(endpoint);
+			timeouts();
+			credentials();
 		} catch (Exception error) {
-			harness.fail("unexpected failure: " + error);
+			WhistleCheck.fail("unexpected failure: " + error);
 		} finally {
 			server.stop(0);
 		}
 
-		System.exit(harness.finish());
+		WhistleCheck.finish("OpenCodeTransport");
 	}
 
 
-	private static void successfulRoundTrip(Harness harness, String endpoint) throws Exception {
+	private static void successfulRoundTrip(String endpoint) throws Exception {
 		reset();
 		status = 200;
-		response = reply("Could you call me tomorrow?");
+		response = Fixtures.reply("Could you call me tomorrow?");
 
 		String text = transcriber(endpoint).transcribe(WAV);
 
-		harness.checkEquals("Could you call me tomorrow?", text, "the transcript comes back from the service");
-		harness.checkEquals("Bearer " + FAKE_KEY, authorization.get(), "the trimmed key is sent as a bearer credential");
-		harness.checkEquals(OpenCodeTranscriber.USER_AGENT, userAgent.get(), "the client identifies itself");
-		harness.check(session.get() != null && !session.get().isEmpty(), "a session header is sent");
-		harness.checkEquals(1, primaryRequests.get(), "exactly one request is made");
-		harness.check(
+		WhistleCheck.equal("Could you call me tomorrow?", text, "the transcript comes back from the service");
+		WhistleCheck.equal("Bearer " + FAKE_KEY, authorization.get(), "the trimmed key is sent as a bearer credential");
+		WhistleCheck.equal(OpenCodeTranscriber.USER_AGENT, userAgent.get(), "the client identifies itself");
+		WhistleCheck.yes(session.get() != null && !session.get().isEmpty(), "a session header is sent");
+		WhistleCheck.equal(1, primaryRequests.get(), "exactly one request is made");
+		WhistleCheck.yes(
 			wireBody.get() != null && wireBody.get().contains("data:audio/wav;base64,"),
 			"the audio travels as an inlined WAV data URI"
 		);
-		harness.check(
+		WhistleCheck.yes(
 			wireBody.get() != null && !wireBody.get().contains(FAKE_KEY),
 			"the wire body never carries the key"
 		);
 	}
 
 
-	private static void statusMapping(Harness harness, String endpoint) throws Exception {
+	private static void statusMapping(String endpoint) throws Exception {
 		int[] statuses = {401, 403, 429, 413, 408, 504, 500, 400, 302};
 		ApiException.Reason[] reasons = {
 			ApiException.Reason.UNAUTHORIZED,
@@ -124,13 +120,13 @@ final class OpenCodeTransportTest {
 			status = statuses[i];
 			response = "{}";
 
-			ApiException failure = failure(harness, transcriber(endpoint), WAV);
-			harness.checkEquals(
+			ApiException failure = failure(transcriber(endpoint), WAV);
+			WhistleCheck.equal(
 				reasons[i],
 				failure == null ? null : failure.reason,
 				"HTTP " + statuses[i] + " is reported as " + reasons[i]
 			);
-			harness.check(
+			WhistleCheck.yes(
 				failure != null && !String.valueOf(failure.getMessage()).contains(FAKE_KEY),
 				"HTTP " + statuses[i] + " failures never echo the key"
 			);
@@ -138,32 +134,32 @@ final class OpenCodeTransportTest {
 	}
 
 
-	private static void redirects(Harness harness, String endpoint) throws Exception {
+	private static void redirects(String endpoint) throws Exception {
 		reset();
 		status = 302;
 		location = "https://localhost/elsewhere";
 		response = "";
 
-		ApiException failure = failure(harness, transcriber(endpoint), WAV);
+		ApiException failure = failure(transcriber(endpoint), WAV);
 
-		harness.checkEquals(
+		WhistleCheck.equal(
 			ApiException.Reason.REJECTED,
 			failure == null ? null : failure.reason,
 			"a redirect is refused instead of followed"
 		);
-		harness.checkEquals(0, redirectRequests.get(), "the credential is never resent to a redirect target");
-		harness.checkEquals(1, primaryRequests.get(), "the request is attempted once");
+		WhistleCheck.equal(0, redirectRequests.get(), "the credential is never resent to a redirect target");
+		WhistleCheck.equal(1, primaryRequests.get(), "the request is attempted once");
 	}
 
 
-	private static void oversizedResponse(Harness harness, String endpoint) throws Exception {
+	private static void oversizedResponse(String endpoint) throws Exception {
 		reset();
 		status = 200;
 		response = repeat('x', 300 * 1024);
 
-		ApiException failure = failure(harness, transcriber(endpoint), WAV);
+		ApiException failure = failure(transcriber(endpoint), WAV);
 
-		harness.checkEquals(
+		WhistleCheck.equal(
 			ApiException.Reason.TOO_LARGE,
 			failure == null ? null : failure.reason,
 			"a response beyond 256 KB is refused"
@@ -171,10 +167,10 @@ final class OpenCodeTransportTest {
 	}
 
 
-	private static void cancellation(Harness harness, String endpoint) throws Exception {
+	private static void cancellation(String endpoint) throws Exception {
 		reset();
 		status = 200;
-		response = reply("This text must never be used");
+		response = Fixtures.reply("This text must never be used");
 		delayMs = 5_000;
 		arrived = new CountDownLatch(1);
 		OpenCodeTranscriber transcriber = transcriber(endpoint);
@@ -191,14 +187,14 @@ final class OpenCodeTransportTest {
 		worker.setDaemon(true);
 		worker.start();
 
-		harness.check(arrived.await(10, TimeUnit.SECONDS), "the request reached the service before cancelling");
+		WhistleCheck.yes(arrived.await(10, TimeUnit.SECONDS), "the request reached the service before cancelling");
 		inFlight.cancel();
 		worker.join(10_000);
-		harness.check(!worker.isAlive(), "cancelling releases the waiting caller");
+		WhistleCheck.yes(!worker.isAlive(), "cancelling releases the waiting caller");
 
 		Throwable failure = outcome.get();
-		harness.check(failure instanceof ApiException, "a cancelled request fails with the adapter's own exception");
-		harness.checkEquals(
+		WhistleCheck.yes(failure instanceof ApiException, "a cancelled request fails with the adapter's own exception");
+		WhistleCheck.equal(
 			ApiException.Reason.CANCELLED,
 			failure instanceof ApiException ? ((ApiException) failure).reason : null,
 			"cancelling is reported as cancelled"
@@ -206,64 +202,64 @@ final class OpenCodeTransportTest {
 
 		reset();
 		status = 200;
-		response = reply("A later attempt on the same instance");
-		ApiException refused = failure(harness, inFlight, WAV);
-		harness.checkEquals(
+		response = Fixtures.reply("A later attempt on the same instance");
+		ApiException refused = failure(inFlight, WAV);
+		WhistleCheck.equal(
 			ApiException.Reason.CANCELLED,
 			refused == null ? null : refused.reason,
 			"a cancelled instance stays cancelled for later calls"
 		);
-		harness.checkEquals(0, primaryRequests.get(), "a cancelled instance sends no follow-up request");
+		WhistleCheck.equal(0, primaryRequests.get(), "a cancelled instance sends no follow-up request");
 
 		// The controller stores the transcriber under its lock, releases the lock and only then calls
 		// transcribe(). cancel() can run in that window, before transcribe() has been entered at all.
 		reset();
 		status = 200;
-		response = reply("This text must never be sent");
+		response = Fixtures.reply("This text must never be sent");
 		OpenCodeTranscriber cancelledUpFront = transcriber(endpoint);
 		cancelledUpFront.cancel();
 
-		ApiException cancelled = failure(harness, cancelledUpFront, WAV);
-		harness.checkEquals(
+		ApiException cancelled = failure(cancelledUpFront, WAV);
+		WhistleCheck.equal(
 			ApiException.Reason.CANCELLED,
 			cancelled == null ? null : cancelled.reason,
 			"a cancel before transcribe() is honoured"
 		);
-		harness.checkEquals(0, primaryRequests.get(), "no connection is opened after an early cancel");
-		harness.checkEquals(0, redirectRequests.get(), "nothing is sent anywhere after an early cancel");
-		harness.check(wireBody.get() == null, "no request body is written after an early cancel");
+		WhistleCheck.equal(0, primaryRequests.get(), "no connection is opened after an early cancel");
+		WhistleCheck.equal(0, redirectRequests.get(), "nothing is sent anywhere after an early cancel");
+		WhistleCheck.yes(wireBody.get() == null, "no request body is written after an early cancel");
 	}
 
 
-	private static void timeouts(Harness harness) {
-		harness.checkEquals(60_000L, OpenCodeTranscriber.OVERALL_TIMEOUT_MS, "the overall request budget is unchanged");
-		harness.checkEquals(10_000, OpenCodeTranscriber.CONNECT_TIMEOUT_MS, "the connect timeout is unchanged");
-		harness.checkEquals(60_000, OpenCodeTranscriber.READ_TIMEOUT_MS, "the read timeout is unchanged");
-		harness.checkEquals(256 * 1024, OpenCodeTranscriber.MAX_RESPONSE_BYTES, "responses stay bounded to 256 KB");
+	private static void timeouts() {
+		WhistleCheck.equal(60_000L, OpenCodeTranscriber.OVERALL_TIMEOUT_MS, "the overall request budget is unchanged");
+		WhistleCheck.equal(10_000, OpenCodeTranscriber.CONNECT_TIMEOUT_MS, "the connect timeout is unchanged");
+		WhistleCheck.equal(60_000, OpenCodeTranscriber.READ_TIMEOUT_MS, "the read timeout is unchanged");
+		WhistleCheck.equal(256 * 1024, OpenCodeTranscriber.MAX_RESPONSE_BYTES, "responses stay bounded to 256 KB");
 	}
 
 
-	private static void credentials(Harness harness) {
-		harness.checkThrows(
+	private static void credentials() {
+		WhistleCheck.checkThrows(
 			ApiException.class,
 			() -> OpenCodeTranscriber.checkedHttpsEndpoint("http://localhost/chat/completions"),
 			"plain HTTP endpoints are refused before any connection"
 		);
-		harness.checkThrows(
+		WhistleCheck.checkThrows(
 			ApiException.class,
 			() -> OpenCodeTranscriber.checkedHttpsEndpoint("https://user:secret@localhost/chat/completions"),
 			"endpoints with embedded credentials are refused"
 		);
-		harness.checkThrows(
+		WhistleCheck.checkThrows(
 			ApiException.class,
 			() -> OpenCodeTranscriber.checkedHttpsEndpoint("not a url"),
 			"malformed endpoints are refused"
 		);
 
-		Throwable failure = harness.thrown(
+		Throwable failure = WhistleCheck.thrown(
 			() -> OpenCodeTranscriber.checkedHttpsEndpoint("https://user:secret@localhost/chat/completions")
 		);
-		harness.check(
+		WhistleCheck.yes(
 			failure != null && !String.valueOf(failure.getMessage()).contains("secret"),
 			"endpoint failures never echo the embedded credentials"
 		);
@@ -345,12 +341,12 @@ final class OpenCodeTransportTest {
 	}
 
 
-	private static ApiException failure(Harness harness, OpenCodeTranscriber transcriber, byte[] wav) {
-		Throwable thrown = harness.thrown(() -> transcriber.transcribe(wav));
+	private static ApiException failure(OpenCodeTranscriber transcriber, byte[] wav) {
+		Throwable thrown = WhistleCheck.thrown(() -> transcriber.transcribe(wav));
 		if (thrown instanceof ApiException) {
 			return (ApiException) thrown;
 		}
-		harness.fail("expected the adapter's own exception, got " + thrown);
+		WhistleCheck.fail("expected the adapter's own exception, got " + thrown);
 		return null;
 	}
 
@@ -367,19 +363,6 @@ final class OpenCodeTransportTest {
 		userAgent.set(null);
 		session.set(null);
 		wireBody.set(null);
-	}
-
-
-	private static String reply(String content) {
-		try {
-			return new JSONObject()
-				.put("choices", new JSONArray().put(new JSONObject()
-					.put("finish_reason", "stop")
-					.put("message", new JSONObject().put("role", "assistant").put("content", content))))
-				.toString();
-		} catch (Exception error) {
-			throw new IllegalStateException(error);
-		}
 	}
 
 

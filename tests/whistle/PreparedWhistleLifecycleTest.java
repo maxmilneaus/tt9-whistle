@@ -36,7 +36,7 @@ final class PreparedWhistleLifecycleTest {
 		WhistleCheck.throwsMentioning(
 			IllegalArgumentException.class,
 			"context",
-			() -> PreparedWhistleTranscriber.isReady(null, BINARY, MODEL, 4, 4),
+			() -> PreparedWhistleTranscriber.isReady(null, BINARY, MODEL, 4, 4, null),
 			"the readiness probe rejects a missing context"
 		);
 	}
@@ -48,10 +48,10 @@ final class PreparedWhistleLifecycleTest {
 	private static void checkCancelLatch() {
 		PreparedWhistleTranscriber transcriber = new PreparedWhistleTranscriber(BINARY, MODEL, 4, 4, "en");
 		transcriber.cancel();
-		WhistleCheck.throwsMentioning(IOException.class, "cancelled", () -> transcriber.transcribe(WAV), "a cancel before transcribe() is honoured");
-		WhistleCheck.throwsMentioning(IOException.class, "cancelled", () -> transcriber.transcribe(WAV), "the latch survives a later transcribe() on the same instance");
+		WhistleCheck.throwsMentioning(TranscriptionCancelledException.class, "cancelled", () -> transcriber.transcribe(WAV), "a cancel before transcribe() is honoured");
+		WhistleCheck.throwsMentioning(TranscriptionCancelledException.class, "cancelled", () -> transcriber.transcribe(WAV), "the latch survives a later transcribe() on the same instance");
 		transcriber.cancel();
-		WhistleCheck.throwsMentioning(IOException.class, "cancelled", () -> transcriber.transcribe(WAV), "cancelling twice is safe");
+		WhistleCheck.throwsMentioning(TranscriptionCancelledException.class, "cancelled", () -> transcriber.transcribe(WAV), "cancelling twice is safe");
 
 		PreparedWhistleTranscriber other = new PreparedWhistleTranscriber(BINARY, MODEL, 4, 4, "en");
 		WhistleCheck.throwsMentioning(IOException.class, "not ready", () -> other.transcribe(WAV), "a cancelled instance does not cancel the class");

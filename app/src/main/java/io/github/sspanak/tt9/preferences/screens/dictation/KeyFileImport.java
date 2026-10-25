@@ -39,11 +39,6 @@ public final class KeyFileImport {
 	}
 
 
-	public static boolean exists(@NonNull Context context) {
-		return getFile(context).isFile();
-	}
-
-
 	@NonNull
 	public static String read(@NonNull Context context) throws ImportException {
 		final File file = getFile(context);

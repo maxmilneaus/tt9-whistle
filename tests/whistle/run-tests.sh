@@ -103,12 +103,24 @@ echo "preference: $TT9_PREFERENCE_AAR"
 echo "build dir:  $TT9_BUILD"
 echo
 
+TT9_UTIL="$TT9_REPO/app/src/main/java/io/github/sspanak/tt9/util"
+TT9_TESTS_JAVA="$TT9_REPO/tests/java/io/github/sspanak/tt9/dictation"
+
+# Logger reads this constant; Gradle generates it for the real app, so the harness supplies it.
+TT9_CONFIG="$TT9_BUILD/sources/io/github/sspanak/tt9/BuildConfig.java"
+mkdir -p "$(dirname "$TT9_CONFIG")"
+printf 'package io.github.sspanak.tt9;\n\n/** Stand-in for the Gradle-generated constant Logger reads; this harness is not a Gradle build. */\npublic final class BuildConfig {\n\tpublic static final boolean DEBUG = false;\n}\n' > "$TT9_CONFIG"
+
 TT9_SOURCES="$TT9_BUILD/sources.txt"
 : > "$TT9_SOURCES"
+printf '"%s"\n' "$TT9_CONFIG" >> "$TT9_SOURCES"
+printf '"%s"\n' "$TT9_UTIL/Logger.java" >> "$TT9_SOURCES"
 printf '"%s"\n' "$TT9_DICTATION/Transcriber.java" >> "$TT9_SOURCES"
 printf '"%s"\n' "$TT9_DICTATION/LocalWhistleTranscriber.java" >> "$TT9_SOURCES"
 printf '"%s"\n' "$TT9_DICTATION/DictationSettings.java" >> "$TT9_SOURCES"
+printf '"%s"\n' "$TT9_DICTATION/TranscriptionCancelledException.java" >> "$TT9_SOURCES"
 printf '"%s"\n' "$TT9_DICTATION/PreparedWhistleTranscriber.java" >> "$TT9_SOURCES"
+printf '"%s"\n' "$TT9_TESTS_JAVA/LocalWhistleTranscriberTest.java" >> "$TT9_SOURCES"
 for TT9_TEST in "$TT9_TESTS"/*.java; do
 	printf '"%s"\n' "$TT9_TEST" >> "$TT9_SOURCES"
 done
@@ -133,6 +145,7 @@ run_suite() {
 run_suite io.github.sspanak.tt9.dictation.PreparedWhistleArgumentsTest
 run_suite io.github.sspanak.tt9.dictation.PreparedWhistleResultTest "$TT9_DICTATION/PreparedWhistleTranscriber.java"
 run_suite io.github.sspanak.tt9.dictation.PreparedWhistleLifecycleTest
+run_suite io.github.sspanak.tt9.dictation.LocalWhistleTranscriberTest
 
 if [ "$TT9_FAILED" -eq 0 ]; then
 	echo "GREEN: all warm Whistle protocol checks passed."

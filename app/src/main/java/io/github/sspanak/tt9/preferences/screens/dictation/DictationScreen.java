@@ -1,9 +1,11 @@
 package io.github.sspanak.tt9.preferences.screens.dictation;
 
+import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.preference.Preference;
 
 import java.io.File;
@@ -171,22 +173,32 @@ public class DictationScreen extends BaseScreenFragment {
 			return "";
 		}
 
-		if (!DictationSettings.isCloudAvailable(host)) {
-			return getString(R.string.dictation_status_cloud_no_network);
+		return getCloudStatusSummary(host, R.string.dictation_status_cloud_no_key);
+	}
+
+
+	/**
+	 * The cloud key summary, shared by the engine row here and the key row on the cloud screen. Both
+	 * run the same isCloudAvailable/hasKey/fingerprint ladder and only differ in the wording used when
+	 * no key is saved yet, so the caller passes that string id.
+	 */
+	public static String getCloudStatusSummary(@NonNull Context context, @StringRes int noKeyMessage) {
+		if (!DictationSettings.isCloudAvailable(context)) {
+			return context.getString(R.string.dictation_status_cloud_no_network);
 		}
 
-		final OpenCodeSettings cloud = new OpenCodeSettings(host);
+		final OpenCodeSettings cloud = new OpenCodeSettings(context);
 		try {
 			if (!cloud.hasKey()) {
-				return getString(R.string.dictation_status_cloud_no_key);
+				return context.getString(noKeyMessage);
 			}
 
 			final String fingerprint = cloud.fingerprint();
 			return fingerprint == null || fingerprint.isEmpty()
-				? getString(R.string.dictation_status_cloud_key_saved)
-				: getString(R.string.dictation_status_cloud_key_saved_fingerprint, fingerprint);
+				? context.getString(R.string.dictation_status_cloud_key_saved)
+				: context.getString(R.string.dictation_status_cloud_key_saved_fingerprint, fingerprint);
 		} catch (Exception e) {
-			return getString(R.string.dictation_status_cloud_no_key);
+			return context.getString(noKeyMessage);
 		}
 	}
 

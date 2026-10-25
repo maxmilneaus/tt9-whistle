@@ -9,7 +9,6 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Reads 16 kHz mono 16-bit WAV clips (from app assets or files) and encodes PCM as WAV.
- * Used by the dictation engine, the stored-clip test screen and the emulator test hook.
  */
 public final class StoredClip {
 	public static final int SAMPLE_RATE_HZ = 16_000;

@@ -7,7 +7,6 @@ import androidx.preference.Preference;
 import java.util.Locale;
 
 import io.github.sspanak.tt9.R;
-import io.github.sspanak.tt9.dictation.DictationSettings;
 import io.github.sspanak.tt9.dictation.OpenCodeSettings;
 import io.github.sspanak.tt9.preferences.PreferencesActivity;
 import io.github.sspanak.tt9.preferences.screens.BaseScreenFragment;
@@ -209,27 +208,7 @@ public class DictationAdvancedScreen extends BaseScreenFragment {
 			return;
 		}
 
-		if (!DictationSettings.isCloudAvailable(host)) {
-			status.setSummary(R.string.dictation_status_cloud_no_network);
-			return;
-		}
-
-		final OpenCodeSettings cloud = new OpenCodeSettings(host);
-
-		try {
-			if (!cloud.hasKey()) {
-				status.setSummary(R.string.dictation_cloud_key_missing);
-				return;
-			}
-
-			final String fingerprint = cloud.fingerprint();
-			status.setSummary(fingerprint == null || fingerprint.isEmpty()
-				? getString(R.string.dictation_status_cloud_key_saved)
-				: getString(R.string.dictation_status_cloud_key_saved_fingerprint, fingerprint)
-			);
-		} catch (Exception e) {
-			status.setSummary(R.string.dictation_cloud_key_missing);
-		}
+		status.setSummary(DictationScreen.getCloudStatusSummary(host, R.string.dictation_cloud_key_missing));
 	}
 
 

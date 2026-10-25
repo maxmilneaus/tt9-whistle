@@ -12,6 +12,7 @@ final class PreparedWhistleArgumentsTest {
 	private static final String BINARY = "/data/app/io.github.sspanak.tt9/lib/arm/libneedle.so";
 	private static final String MODEL = "/data/user/0/io.github.sspanak.tt9/files/whistle/whistle.cact";
 	private static final String FIFO = "/data/user/0/io.github.sspanak.tt9/cache/whistle-1a2b3c.fifo";
+	private static final String KEYWORDS = "/data/user/0/io.github.sspanak.tt9/files/whistle/keywords.txt";
 
 	public static void main(String[] args) {
 		checkArguments();
@@ -25,18 +26,23 @@ final class PreparedWhistleArgumentsTest {
 	private static void checkArguments() {
 		WhistleCheck.equal(
 			Arrays.asList(BINARY, "--model", MODEL, "--audio", FIFO, "--audio-language", "de", "--audio-depth", "4", "--threads", "4"),
-			PreparedWhistleTranscriber.arguments(BINARY, MODEL, FIFO, 4, 4, "de"),
+			PreparedWhistleTranscriber.arguments(BINARY, MODEL, FIFO, 4, 4, "de", null),
 			"the tuned configuration is sent in the runner's own flag order"
 		);
 		WhistleCheck.equal(
 			Arrays.asList(BINARY, "--model", MODEL, "--audio", FIFO, "--audio-language", "en"),
-			PreparedWhistleTranscriber.arguments(BINARY, MODEL, FIFO, PreparedWhistleTranscriber.FULL_DEPTH, PreparedWhistleTranscriber.AUTO_THREADS, "en"),
+			PreparedWhistleTranscriber.arguments(BINARY, MODEL, FIFO, PreparedWhistleTranscriber.FULL_DEPTH, PreparedWhistleTranscriber.AUTO_THREADS, "en", null),
 			"the whole ladder and the engine's own thread count are sent as no flag at all"
 		);
 		WhistleCheck.equal(
 			Arrays.asList(BINARY, "--model", MODEL, "--audio", FIFO, "--audio-language", "pl", "--audio-depth", "2", "--threads", "1"),
-			PreparedWhistleTranscriber.arguments(BINARY, MODEL, FIFO, 2, 1, "pl"),
+			PreparedWhistleTranscriber.arguments(BINARY, MODEL, FIFO, 2, 1, "pl", null),
 			"the smallest ladder and one thread are sent explicitly"
+		);
+		WhistleCheck.equal(
+			Arrays.asList(BINARY, "--model", MODEL, "--audio", FIFO, "--audio-language", "en", "--audio-depth", "4", "--threads", "4", "--audio-keywords", KEYWORDS),
+			PreparedWhistleTranscriber.arguments(BINARY, MODEL, FIFO, 4, 4, "en", KEYWORDS),
+			"hint words are sent as the runner's keyword-file flag"
 		);
 	}
 
@@ -50,7 +56,7 @@ final class PreparedWhistleArgumentsTest {
 		WhistleCheck.equal(PreparedWhistleTranscriber.MAX_DEPTH, PreparedWhistleTranscriber.clampDepth(999), "an absurd depth is capped");
 
 		for (int depth : new int[] { -7, 0, 1, 2, 3, 8, 9, 999 }) {
-			Integer sent = flag(PreparedWhistleTranscriber.arguments(BINARY, MODEL, FIFO, depth, 4, "en"), "--audio-depth");
+			Integer sent = flag(PreparedWhistleTranscriber.arguments(BINARY, MODEL, FIFO, depth, 4, "en", null), "--audio-depth");
 			WhistleCheck.yes(
 				sent == null || (sent >= PreparedWhistleTranscriber.MIN_DEPTH && sent <= PreparedWhistleTranscriber.MAX_DEPTH),
 				"depth " + depth + " never reaches the runner outside 2..8 [sent=" + sent + "]"
@@ -66,7 +72,7 @@ final class PreparedWhistleArgumentsTest {
 		WhistleCheck.equal(PreparedWhistleTranscriber.MAX_THREADS, PreparedWhistleTranscriber.clampThreads(99), "99 threads, which collapses throughput, is capped");
 
 		for (int threads : new int[] { -3, 0, 1, 2, 4, 5, 99 }) {
-			Integer sent = flag(PreparedWhistleTranscriber.arguments(BINARY, MODEL, FIFO, 4, threads, "en"), "--threads");
+			Integer sent = flag(PreparedWhistleTranscriber.arguments(BINARY, MODEL, FIFO, 4, threads, "en", null), "--threads");
 			WhistleCheck.yes(
 				sent == null || (sent >= 1 && sent <= PreparedWhistleTranscriber.MAX_THREADS),
 				"threads " + threads + " never reaches the runner outside 1..4 [sent=" + sent + "]"
@@ -84,7 +90,7 @@ final class PreparedWhistleArgumentsTest {
 		WhistleCheck.equal("en", PreparedWhistleTranscriber.clampLanguage("DE"), "the runner's language flags are lower case");
 		WhistleCheck.equal(
 			"en",
-			flag(PreparedWhistleTranscriber.arguments(BINARY, MODEL, FIFO, 4, 4, "zh"), "--audio-language", true),
+			flag(PreparedWhistleTranscriber.arguments(BINARY, MODEL, FIFO, 4, 4, "zh", null), "--audio-language", true),
 			"an unsupported language never reaches the runner"
 		);
 	}
